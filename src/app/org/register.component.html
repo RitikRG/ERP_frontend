@@ -1,0 +1,79 @@
+<div class="registrationFormContainer">
+  
+  <div class="registrationModalContainer">
+    <div class="leftContainer">
+      <div class="platformLogoContainer">
+        <img src="/images/logo.png" alt="Logo">
+        <p>RNR ERP</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit($event)" class="registrationForm">
+        <div class="formControl">
+          <label>Name:</label>
+          <input type="text" formControlName="name" />
+          <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="formInputError">
+            Name is required.
+          </div>
+        </div>
+      
+        <div class="formControl">
+          <label>GST:</label>
+          <input type="text" formControlName="gst" />
+          <div *ngIf="registerForm.get('gst')?.invalid && registerForm.get('gst')?.touched" class="formInputError">
+            GST is required.
+          </div>
+        </div>
+      
+        <div class="formControl">
+          <label>Address:</label>
+          <input type="text" formControlName="address" />
+          <div *ngIf="registerForm.get('address')?.invalid && registerForm.get('address')?.touched" class="formInputError">
+            Address is required.
+          </div>
+        </div>
+      
+        <div class="formControl">
+          <label>Email:</label>
+          <input type="email" formControlName="email" />
+          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="formInputError">
+            Enter a valid email.
+          </div>
+        </div>
+      
+        <div class="formControl">
+          <label>Contact Person Name:</label>
+          <input type="text" formControlName="contact_person_name" />
+          <div *ngIf="registerForm.get('contact_person_name')?.invalid && registerForm.get('contact_person_name')?.touched" class="formInputError">
+            Contact Person Is required.
+          </div>
+        </div>
+      
+          <div class="formControl">
+              <label>Phone:</label>
+              <input type="number" formControlName="phone" />
+              <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched" class="formInputError">
+              Enter a valid Phone number.
+              </div>
+          </div>
+      
+        <div class="formControl">
+          <label>Password:</label>
+          <input type="password" formControlName="password" />
+          <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="formInputError">
+            Password must be at least 6 characters.
+          </div>
+        </div>
+      
+        <div class="formControl">
+          <label>Confirm Password:</label>
+          <input type="password" formControlName="confirmPassword" />
+        </div>
+      
+        <button type="submit" [disabled]="registerForm.invalid" class="btn-primary">Register</button>
+      </form>
+    </div>
+    <div class="rightContainer">
+
+    </div>
+  </div>
+</div>

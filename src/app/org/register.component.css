@@ -1,0 +1,53 @@
+.registrationFormContainer{
+    background-color: var(--root-bg);
+    width: 100vw;
+    height: 100vh;
+    top: 0px;
+}
+ 
+.registrationModalContainer{
+    background-color: white;
+    position: absolute;
+    left: 50vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    height: 70vh;
+    max-width: 900px;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    overflow: hidden;
+}
+
+.leftContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .registrationForm{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        .btn-primary{
+            grid-column: span 2;
+            width: fit-content;
+            margin-top: 20px;
+        }
+    }
+}
+
+.rightContainer {
+    /* 1. Specify the image URL */
+    background-image: url('/images/registration.png'); 
+    
+    /* 2. Control how the image is tiled (prevent repetition) */
+    background-repeat: no-repeat; 
+    
+    /* 3. Ensure the image covers the entire container, cropping if necessary */
+    background-size: cover; 
+    
+    /* 4. Center the image both horizontally and vertically */
+    background-position: center center; 
+}

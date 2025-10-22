@@ -1,0 +1,109 @@
+<app-header>
+
+<div class="box">
+  <div class="header">
+    <h2>Add New Product</h2>
+  </div>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit($event)" class="product-form">
+    <div class="form-grid">
+      <!-- Product Name -->
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" formControlName="name" placeholder="Enter product name" />
+        <small *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+          Product name is required
+        </small>
+      </div>
+      
+      <!-- Image Upload -->
+      <div class="form-group image-upload">
+        <label>Product Image</label>
+        <div class="upload-box" (click)="fileInput.click()">
+          <input
+            type="file"
+            #fileInput
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            hidden
+          />
+          <ng-container *ngIf="imagePreview; else uploadPlaceholder">
+            <img [src]="imagePreview" alt="Preview" class="preview" />
+          </ng-container>
+          <ng-template #uploadPlaceholder>
+            <i class="fa fa-upload"></i>
+            <p>Click to upload or drag and drop</p>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Product Code -->
+      <div class="form-group">
+        <label>Product Code</label>
+        <input type="text" formControlName="p_code" placeholder="Enter product code" />
+        <small *ngIf="registerForm.get('p_code')?.invalid && registerForm.get('p_code')?.touched">
+          Product code is required
+        </small>
+      </div>
+
+
+      <!-- Cost -->
+      <div class="form-group">
+        <label>Cost</label>
+        <input type="number" formControlName="cost" placeholder="0.00" />
+        <small *ngIf="registerForm.get('cost')?.invalid && registerForm.get('cost')?.touched">
+          Cost is required
+        </small>
+      </div>
+
+      <!-- Price -->
+      <div class="form-group">
+        <label>Price</label>
+        <input type="number" formControlName="price" placeholder="0.00" />
+        <small *ngIf="registerForm.get('price')?.invalid && registerForm.get('price')?.touched">
+          Price is required
+        </small>
+      </div>
+
+      <!-- Tax Rate -->
+      <div class="form-group">
+        <label>Tax Rate (%)</label>
+        <input type="number" formControlName="tax_rate" placeholder="Enter tax rate" />
+        <small *ngIf="registerForm.get('tax_rate')?.invalid && registerForm.get('tax_rate')?.touched">
+          Tax rate is required
+        </small>
+      </div>
+
+      <!-- Tax Type -->
+      <div class="form-group">
+        <label>Tax Type</label>
+        <select formControlName="tax_type">
+          <option value="">Select Type</option>
+          <option value="inclusive">Inclusive</option>
+          <option value="exclusive">Exclusive</option>
+        </select>
+        <small *ngIf="registerForm.get('tax_type')?.invalid && registerForm.get('tax_type')?.touched">
+          Tax type is required
+        </small>
+      </div>
+
+      <!-- Cess -->
+      <div class="form-group">
+        <label>Cess (%)</label>
+        <input type="number" formControlName="cess" placeholder="Enter cess percentage" />
+        <small *ngIf="registerForm.get('cess')?.invalid && registerForm.get('cess')?.touched">
+          Cess is required
+        </small>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="registerForm.invalid" class="submit-btn">
+        <i class="fa fa-plus"></i> Add Product
+      </button>
+    </div>
+  </form>
+</div>
+
+
+</app-header>

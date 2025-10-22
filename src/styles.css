@@ -1,1 +1,171 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+html{
+    margin: 0px !important;
+}
+body{
+    margin: 0px !important;
+    padding: 0px !important;
+}
+*{
+    font-family: 'Inter', sans-serif!important;    
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Defining root colors */
+
+:root {
+  --primary-dark: #001F3F; 
+  --root-bg : #c9cfd4;
+}
+
+
+
+
+
+/* Platform Logo Container */
+
+.platformLogoContainer{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    img{
+        width: 40px;
+        border-radius: 5px;
+    }
+    p{
+        font-size: 30px;
+        font-weight: 600;
+        margin: 0px;
+    }
+}
+
+/* Form Styling */
+
+.formControl{
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0px 5px;
+    margin: 10px 0px;
+
+    label{
+        font-size: 12px;
+        font-weight: 500;
+        color: #666;
+    }
+
+    input{
+        border-radius: 20px;
+        padding: 5px 10px;
+        border: 1px solid #666;
+        font-size: 15px;
+    }
+
+    .formInputError{
+        font-size: 12px;
+        font-weight: 500;
+        color: red;
+    }
+}
+
+/* Internal form */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+input,
+select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+small {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.form-actions {
+  text-align: right;
+}
+
+.submit-btn {
+  background-color: var(--primary-dark);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.submit-btn:hover:not(:disabled) {
+  opacity: 0.5;
+}
+
+
+
+/* Buttons */
+
+.btn-primary{
+    background-color: var(--primary-dark);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 15px;
+}
+
+/* Box styling */
+
+.box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+

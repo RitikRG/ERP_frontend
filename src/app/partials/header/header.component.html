@@ -1,0 +1,41 @@
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.closed]="!sidebarOpen">
+    <div class="sidebar-header">
+      <h2>E</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="aside"></div>
+      <a href="#" class="active"><i class="fa fa-home"></i> Dashboard</a>
+      <a href="#"><i class="fa fa-box"></i> Inventory</a>
+      <a href="#"><i class="fa fa-file-invoice"></i> Billing</a>
+      <a href="#"><i class="fa fa-share-alt"></i> Share</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Top Navbar -->
+    <header class="topbar">
+      <button class="menu-btn" (click)="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+      </button>
+
+      <div class="search">
+        <input type="text" placeholder="Search or type a command (Ctrl + O)" />
+      </div>
+
+      <div class="topbar-right">
+        <a href="#" class="help">Help</a>
+        <div class="profile">
+          <img src="https://via.placeholder.com/32" alt="User" />
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <ng-content></ng-content>
+    </main>
+  </div>
+</div>

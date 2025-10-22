@@ -1,0 +1,52 @@
+.login-outer-container{
+    background-color: var(--root-bg);
+    width: 100vw;
+    height: 100vh;
+}
+
+.login-container{
+    background-color: white;
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translateX(-50%) translateY(-50%);
+    width: 80vw;
+    max-width: 900px;
+    height: 70vh;
+    border-radius: 20px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.left{
+    /* 1. Specify the image URL */
+    background-image: url('/images/registration.png'); 
+    
+    /* 2. Control how the image is tiled (prevent repetition) */
+    background-repeat: no-repeat; 
+    
+    /* 3. Ensure the image covers the entire container, cropping if necessary */
+    background-size: cover; 
+    
+    /* 4. Center the image both horizontally and vertically */
+    background-position: center center; 
+}
+
+.right{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+.formContainer{
+    display: flex;
+    flex-direction: column;
+
+
+    .btn-primary{
+        margin-top: 10px;
+    }
+}
