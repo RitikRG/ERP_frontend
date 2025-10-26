@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ProductService } from './product.service';
 import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'product-create',
@@ -30,7 +31,7 @@ export class NewProductComponent {
     }
   }
   registerForm;
-  constructor(private fb: FormBuilder, private router: Router, private service: ProductService, public auth: AuthService) {
+  constructor(private fb: FormBuilder, private router: Router, private service: ProductService, public auth: AuthService, private toast: ToastService) {
     this.registerForm = this.fb.group({
         name: ['', Validators.required],
         p_code: ['', Validators.required],
@@ -39,7 +40,6 @@ export class NewProductComponent {
         price: [0, [Validators.required]],
         tax_rate: [0, [Validators.required]],
         tax_type: ['', Validators.required],
-        cess: [0, [Validators.required]],
     });
   }
 
@@ -50,9 +50,6 @@ export class NewProductComponent {
 
     const formData = new FormData();
 
-    console.log('Current user:', this.auth.currentUserValue);
-    console.log('Org ID:', this.auth.currentUserValue?.org_id);
-
     formData.append('org_id', this.auth.currentUserValue?.org_id || '');
     formData.append('name', this.registerForm.value.name||'');
     formData.append('p_code', this.registerForm.value.p_code||'');
@@ -60,14 +57,21 @@ export class NewProductComponent {
     formData.append('price', this.registerForm.value.price?.toString()||'');
     formData.append('tax_rate', this.registerForm.value.tax_rate?.toString()||'');
     formData.append('tax_type', this.registerForm.value.tax_type||'');
-    formData.append('cess', this.registerForm.value.cess?.toString()||'');
 
     if (this.imageFile) {
       formData.append('img', this.imageFile);
     }
 
     this.service.createProduct(formData).subscribe({
-      next: () => this.router.navigate(['/product/new']),
+        next: () => {
+            // Show success toast
+            this.toast.showSuccess('Product Created successfully!');
+
+            // Wait a short time so user can see the toast, then navigate
+            setTimeout(() => {
+            this.router.navigate(['/product/list']);
+            }, 500);
+        },
       error: err => alert(err.error?.message || 'Product creation failed'),
     });
   }

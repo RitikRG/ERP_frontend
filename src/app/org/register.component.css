@@ -51,3 +51,31 @@
     /* 4. Center the image both horizontally and vertically */
     background-position: center center; 
 }
+
+@media screen and (max-width: 448px) {
+    .registrationModalContainer{
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0px;
+        grid-template-columns: 1fr;
+    }
+    .rightContainer{
+        display: none;
+    }
+    .leftContainer{
+        .registrationForm{
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            padding: 0px 20px;
+            .formControl{
+                margin: 5px auto;
+                width: 80%;
+            }
+        }
+        .btn-primary{
+            grid-column: span 1;
+            align-self: center;
+        }
+    }
+}

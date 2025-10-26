@@ -6,13 +6,28 @@
     </div>
 
     <nav class="sidebar-nav">
-        <div class="aside"></div>
-      <a href="#" class="active"><i class="fa fa-home"></i> Dashboard</a>
-      <a href="#"><i class="fa fa-box"></i> Inventory</a>
-      <a href="#"><i class="fa fa-file-invoice"></i> Billing</a>
-      <a href="#"><i class="fa fa-share-alt"></i> Share</a>
+      <div class="aside"></div>
+      <ul>
+        <li *ngFor="let item of menuItems">
+          <a href="{{item.route}}" (click)="item.children ? toggleSubMenu(item) : null">
+            <i [class]="item.icon"></i> {{ item.label }}
+            <span *ngIf="item.children" class="arrow" [class.open]="item.isOpen">▼</span>
+          </a>
+          
+          <!-- Child Menu -->
+          <ul *ngIf="item.children && item.isOpen" class="child-menu">
+            <li *ngFor="let child of item.children">
+              <a href="{{child.route}}"
+                [class.active]="isChildActive(child.route)">
+                <i [class]="child.icon"></i> {{ child.label }}
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </nav>
   </aside>
+
 
   <!-- Main Content -->
   <div class="main">

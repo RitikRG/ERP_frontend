@@ -1,0 +1,78 @@
+<app-header>
+  <div class="box">
+    <div class="header">
+      <h2>Edit Product</h2>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit($event)" class="product-form">
+      <div class="form-grid">
+        <!-- Product Name -->
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" formControlName="name" placeholder="Enter product name" />
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group image-upload">
+          <label>Product Image</label>
+          <div class="upload-box" (click)="fileInput.click()">
+            <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" hidden />
+            <ng-container *ngIf="imagePreview; else uploadPlaceholder">
+              <img [src]="imagePreview" alt="Preview" class="preview" />
+            </ng-container>
+            <ng-template #uploadPlaceholder>
+              <i class="fa fa-upload"></i>
+              <p>Click to upload or drag and drop</p>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Product Code -->
+        <div class="form-group">
+          <label>Product Code</label>
+          <input type="text" formControlName="p_code" placeholder="Enter product code" />
+        </div>
+
+        <!-- Cost -->
+        <div class="form-group">
+          <label>Cost</label>
+          <input type="number" formControlName="cost" placeholder="0.00" />
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label>Price</label>
+          <input type="number" formControlName="price" placeholder="0.00" />
+        </div>
+
+        <!-- Tax Rate -->
+        <div class="form-group">
+          <label>Tax Rate (%)</label>
+          <select formControlName="tax_rate">
+            <option value="">Select Tax Rate</option>
+            <option value="0">0%</option>
+            <option value="5">5%</option>
+            <option value="18">18%</option>
+            <option value="40">40%</option>
+          </select>
+        </div>
+
+        <!-- Tax Type -->
+        <div class="form-group">
+          <label>Tax Type</label>
+          <select formControlName="tax_type">
+            <option value="">Select Type</option>
+            <option value="inclusive">Inclusive</option>
+            <option value="exclusive">Exclusive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="registerForm.invalid" class="submit-btn">
+          <i class="fa fa-save"></i> Update Product
+        </button>
+      </div>
+    </form>
+  </div>
+</app-header>

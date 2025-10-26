@@ -68,7 +68,13 @@
       <!-- Tax Rate -->
       <div class="form-group">
         <label>Tax Rate (%)</label>
-        <input type="number" formControlName="tax_rate" placeholder="Enter tax rate" />
+        <select formControlName="tax_rate">
+          <option value="">Select Tax Rate</option>
+          <option value=0>0%</option>
+          <option value=5>5%</option>
+          <option value=18>18%</option>
+          <option value=40>40%</option>
+        </select>
         <small *ngIf="registerForm.get('tax_rate')?.invalid && registerForm.get('tax_rate')?.touched">
           Tax rate is required
         </small>
@@ -84,15 +90,6 @@
         </select>
         <small *ngIf="registerForm.get('tax_type')?.invalid && registerForm.get('tax_type')?.touched">
           Tax type is required
-        </small>
-      </div>
-
-      <!-- Cess -->
-      <div class="form-group">
-        <label>Cess (%)</label>
-        <input type="number" formControlName="cess" placeholder="Enter cess percentage" />
-        <small *ngIf="registerForm.get('cess')?.invalid && registerForm.get('cess')?.touched">
-          Cess is required
         </small>
       </div>
     </div>

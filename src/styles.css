@@ -19,6 +19,8 @@ body{
 :root {
   --primary-dark: #001F3F; 
   --root-bg : #c9cfd4;
+  --danger-red: #dc2626;
+  --light-blue: #2563eb;
 }
 
 
@@ -103,7 +105,7 @@ select:focus {
 }
 
 small {
-  color: #dc2626;
+  color: var(--danger-red);
   font-size: 0.8rem;
   margin-top: 0.2rem;
 }
@@ -146,6 +148,26 @@ small {
     font-size: 15px;
 }
 
+.btn-secondary{
+  background-color: var(--primary-dark);
+  color: white;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  margin: 0px 3px;
+}
+
+.btn-delete{
+  background-color: transparent;
+  color: var(--danger-red);
+  border: 1px solid var(--danger-red);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  margin: 0px 3px;
+}
+
 /* Box styling */
 
 .box {
@@ -169,3 +191,119 @@ small {
   color: #1f2937;
 }
 
+/* Table basic styling */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+table th,
+table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+table th {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+}
+
+
+.search-bar {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-bar input {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 250px;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.table-controls .left select {
+  margin: 0 5px;
+  padding: 4px 8px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pagination .btn {
+  padding: 5px 12px;
+  border: 1px solid #ccc;
+  background-color: #f4f4f4;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Popup css */
+
+.confirm-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirm-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.confirm-box .buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.btn-confirm {
+  background: #dc3545;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

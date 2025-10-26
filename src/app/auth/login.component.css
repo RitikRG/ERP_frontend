@@ -4,7 +4,7 @@
     height: 100vh;
 }
 
-.login-container{
+.login-container{ 
     background-color: white;
     position: absolute;
     top: 50vh;
@@ -48,5 +48,21 @@
 
     .btn-primary{
         margin-top: 10px;
+    }
+}
+
+@media (max-width: 448px) {
+    .login-container{
+        width: 80vw;
+        height: 80vh;
+        grid-template-columns: 2fr;
+
+        .btn-primary{
+            margin-top: 5px;
+            width:50px;
+            height:25px;
+            align-self: center;
+            
+        }
     }
 }
