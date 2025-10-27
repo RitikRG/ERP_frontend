@@ -7,6 +7,8 @@ import { authGuard } from './auth/auth.gaurd';
 import { NewProductComponent } from './pages/product/createProduct.component';
 import { ProductsListComponent } from './pages/product/productList.component';
 import { EditProductComponent } from './pages/product/editProduct.component';
+import { NewSupplierComponent } from './pages/supplier/createSupplier.component';
+import { SupplierListComponent } from './pages/supplier/suppliersList.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -21,5 +23,8 @@ export const routes: Routes = [
   { path: 'product/new', component: NewProductComponent, canActivate: [authGuard] },
   { path: 'product/list', component: ProductsListComponent, canActivate: [authGuard] },
   { path: 'product/edit/:id', component: EditProductComponent, canActivate: [authGuard] },
-
+  
+  // Supplier paths
+  { path: 'supplier/new', component: NewSupplierComponent, canActivate: [authGuard] },
+  { path: 'supplier/list', component: SupplierListComponent, canActivate: [authGuard] },
 ];

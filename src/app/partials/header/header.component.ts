@@ -27,6 +27,12 @@ export class HeaderComponent {
         { label: 'Product List', icon: 'fa fa-list', route: '/product/list' }
       ]
     },
+    {
+      label: 'Supplier', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+        { label: 'Add Supplier', icon: 'fa fa-plus', route: '/supplier/new' },
+        { label: 'Suppliers List', icon: 'fa fa-plus', route: '/supplier/list' }
+      ]
+    },
     { label: 'Billing', icon: 'fa fa-file-invoice', route: '#' },
     { label: 'Share', icon: 'fa fa-share-alt', route: '#' }
   ];

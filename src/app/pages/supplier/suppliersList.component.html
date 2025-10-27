@@ -1,0 +1,96 @@
+<app-header>
+
+<div class="box">
+  <div class="header-row">
+    <h2>Suppliers</h2>
+    <button class="btn-primary" (click)="navigateToCreate()">+ Add New Supplier</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading products...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div class="table-controls">
+    <div class="left">
+      <label>Show:</label>
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+      </select>
+      <span>entries</span>
+    </div>
+
+    <div class="right">
+      <input
+        type="text"
+        placeholder="Search by name, compnay, email or phone..."
+        [(ngModel)]="searchTerm"
+        (input)="filterSuppliers()"
+      />
+    </div>
+  </div>
+
+
+  <table *ngIf="!loading && errorMessage =='' && paginatedSuppliers.length" class="product-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Company</th>
+        <th>GST</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let supplier of paginatedSuppliers">
+        <td>{{ supplier.name }}</td>
+        <td>{{ supplier.company }}</td>
+        <td>{{ supplier.gst? supplier.gst: '-' }}</td>
+        <td>{{ supplier.email }}</td>
+        <td>{{ supplier.phone }}</td>
+        <td class="actions_td">
+          <button class="btn-secondary" (click)="editProduct(supplier._id)"> <fa-icon [icon]="faEdit"></fa-icon> Edit</button>
+          <button class="btn-delete" (click)="openDeleteConfirmation(supplier._id, supplier.name, supplier.company)"><fa-icon [icon]="faTrash"></fa-icon> Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <button
+      class="btn"
+      [disabled]="page === 1"
+      (click)="page = page - 1; updatePaginatedSuppliers()"
+    >
+      Prev
+    </button>
+
+    <span>Page {{ page }} of {{ totalPages() }}</span>
+
+    <button
+      class="btn"
+      [disabled]="page === totalPages()"
+      (click)="page = page + 1; updatePaginatedSuppliers()"
+    >
+      Next
+    </button>
+  </div>
+
+
+  <div *ngIf="!loading && !errorMessage && !suppliers.length" class="empty">
+    No products found.
+  </div>
+</div>
+
+
+<div class="confirm-popup" *ngIf="showConfirmPopup">
+  <div class="confirm-box">
+    <p>Are you sure you want to delete {{showConfirmProductName}} ?</p>
+    <div class="buttons">
+      <button class="btn-confirm" (click)="deleteProduct(selectedProductId!)">Yes</button>
+      <button class="btn-cancel" (click)="showConfirmPopup = false">No</button>
+    </div>
+  </div>
+</div>
+
+
+</app-header>
