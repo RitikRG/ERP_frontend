@@ -48,7 +48,7 @@ export class NewSupplierComponent {
 
             // Wait a short time so user can see the toast, then navigate
             setTimeout(() => {
-            this.router.navigate(['/product/list']);
+            this.router.navigate(['/supplier/list']);
             }, 500);
         },
       error: err => alert(err.error?.message || 'Supplier addition failed'),

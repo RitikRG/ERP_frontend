@@ -9,6 +9,8 @@ import { ProductsListComponent } from './pages/product/productList.component';
 import { EditProductComponent } from './pages/product/editProduct.component';
 import { NewSupplierComponent } from './pages/supplier/createSupplier.component';
 import { SupplierListComponent } from './pages/supplier/suppliersList.component';
+import { EditSupplierComponent } from './pages/supplier/editSupplier.component';
+import { CurrentStockComponent } from './pages/inventory/currentStock.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -27,4 +29,9 @@ export const routes: Routes = [
   // Supplier paths
   { path: 'supplier/new', component: NewSupplierComponent, canActivate: [authGuard] },
   { path: 'supplier/list', component: SupplierListComponent, canActivate: [authGuard] },
+  { path: 'supplier/edit/:id', component: EditSupplierComponent, canActivate: [authGuard] },
+  
+  // Inventory paths
+  { path: 'inventory/current-stock', component: CurrentStockComponent, canActivate: [authGuard] },
+
 ];

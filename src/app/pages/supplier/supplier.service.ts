@@ -24,19 +24,19 @@ export class SupplierService {
     return this.http.get(url);
   }
 
-  // Delete Product
-  deleteProduct(org_id: string, product_id: string): Observable<any> {
-    const url = `${this.apiUrl}/delete/${org_id}/${product_id}`;
+  // Delete Supplier
+  deleteSupplier(org_id: string, supplier_id: string): Observable<any> {
+    const url = `${this.apiUrl}/delete/${org_id}/${supplier_id}`;
     return this.http.delete(url);
   }
 
-  // Edit product
-  getProductById(org_id: string, id: string): Observable<any> {
+  // Edit supplier
+  getSupplierById(org_id: string, id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/edit/${org_id}/${id}`);
   }
 
-  // Update product
-  updateProduct(org_id: string, id: string, data: FormData): Observable<any> {
+  // Update supplier
+  updateSupplier(org_id: string, id: string, data: any): Observable<any> {
     return this.http.patch(`${this.apiUrl}/edit/${org_id}/${id}`, data);
   }
 }

@@ -1,0 +1,59 @@
+<app-header>
+  <div class="box">
+    <div class="header">
+      <h2>Edit Supplier</h2>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit($event)" class="supplier-form">
+      <div class="form-grid">
+        <!-- Supplier Name -->
+        <div class="form-group">
+          <label>Supplier Name</label>
+          <input type="text" formControlName="name" placeholder="Enter Supplier name" />
+          <small *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+            Supplier name is required
+          </small>
+        </div>
+
+        <!-- Compnay Name -->
+        <div class="form-group">
+          <label>Company Name</label>
+          <input type="text" formControlName="company" placeholder="Enter Company name" />
+          <small *ngIf="registerForm.get('company')?.invalid && registerForm.get('company')?.touched">
+            Company name is required
+          </small>
+        </div>
+
+        <!-- Gst -->
+        <div class="form-group">
+          <label>Company Gst</label>
+          <input type="text" formControlName="gst" placeholder="Enter Company GST number" />
+        </div>
+        
+        <!-- Compnay Email -->
+        <div class="form-group">
+          <label>Email</label>
+          <input type="text" formControlName="email" placeholder="Enter Company email" />
+          <small *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            Company email is required
+          </small>
+        </div>
+        
+        <!-- Compnay Phone -->
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="number" formControlName="phone" placeholder="Enter Company contact number" />
+          <small *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
+            Company contact number is required
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="registerForm.invalid" class="submit-btn">
+          <i class="fa fa-save"></i> Update Supplier
+        </button>
+      </div>
+    </form>
+  </div>
+</app-header>

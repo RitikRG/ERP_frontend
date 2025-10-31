@@ -48,7 +48,7 @@
         <td>{{ supplier.email }}</td>
         <td>{{ supplier.phone }}</td>
         <td class="actions_td">
-          <button class="btn-secondary" (click)="editProduct(supplier._id)"> <fa-icon [icon]="faEdit"></fa-icon> Edit</button>
+          <button class="btn-secondary" (click)="editSupplier(supplier._id)"> <fa-icon [icon]="faEdit"></fa-icon> Edit</button>
           <button class="btn-delete" (click)="openDeleteConfirmation(supplier._id, supplier.name, supplier.company)"><fa-icon [icon]="faTrash"></fa-icon> Delete</button>
         </td>
       </tr>
@@ -84,9 +84,9 @@
 
 <div class="confirm-popup" *ngIf="showConfirmPopup">
   <div class="confirm-box">
-    <p>Are you sure you want to delete {{showConfirmProductName}} ?</p>
+    <p>Are you sure you want to delete {{showConfirmSupplierName}} ?</p>
     <div class="buttons">
-      <button class="btn-confirm" (click)="deleteProduct(selectedProductId!)">Yes</button>
+      <button class="btn-confirm" (click)="deleteSupplier(selectedSupplierId!)">Yes</button>
       <button class="btn-cancel" (click)="showConfirmPopup = false">No</button>
     </div>
   </div>

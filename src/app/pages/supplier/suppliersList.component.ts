@@ -35,8 +35,8 @@ export class SupplierListComponent implements OnInit {
 
   // Confirmation popup
   showConfirmPopup = false;
-  showConfirmProductName = 'this product';
-  selectedProductId: string | null = null;
+  showConfirmSupplierName = 'this supplier';
+  selectedSupplierId: string | null = null;
 
 
   constructor(
@@ -114,38 +114,38 @@ export class SupplierListComponent implements OnInit {
     this.updatePaginatedSuppliers();
   }
 
-  openDeleteConfirmation(productId: string, name:string, code:string) {
-    this.selectedProductId = productId;
+  openDeleteConfirmation(supplierId: string, name:string, company:string) {
+    this.selectedSupplierId = supplierId;
     this.showConfirmPopup = true;
-    this.showConfirmProductName = name + "(" + code + ")";
+    this.showConfirmSupplierName = name + "(" + company + ")";
   }
 
-  deleteProduct(productId: string) {
-    // Call ProductService to delete
+  deleteSupplier(supplierId: string) {
+    // Call Supplier service to delete
     const orgId = this.auth.currentUserValue?.org_id||'';
-    this.supplierService.deleteProduct(orgId, productId).subscribe({
+    this.supplierService.deleteSupplier(orgId, supplierId).subscribe({
       next: (res) => {
         // Remove deleted product from lists
-        this.suppliers = this.suppliers.filter(p => p._id !== productId);
+        this.suppliers = this.suppliers.filter(p => p._id !== supplierId);
         this.filterSuppliers(); // refresh filtered & paginated view
         this.showConfirmPopup = false;
-        this.selectedProductId = null;
-        this.toast.showSuccess('Product Deleted Successfully');
+        this.selectedSupplierId = null;
+        this.toast.showSuccess('Supplier Deleted Successfully');
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error deleting product:', err);
+        console.error('Error deleting supplier:', err);
         this.showConfirmPopup = false;
-        this.selectedProductId = null;
-        this.showConfirmProductName = "this product";
+        this.selectedSupplierId = null;
+        this.showConfirmSupplierName = "this supplier";
       }
     });
   }
 
 
   // Navigate to edit page
-  editProduct(id: string) {
-    this.router.navigate(['/product/edit', id]);
+  editSupplier(id: string) {
+    this.router.navigate(['/supplier/edit', id]);
   }
 
   navigateToCreate() {
