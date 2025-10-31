@@ -1,0 +1,14 @@
+<!-- Button to open popup -->
+<button class="scan-btn" (click)="openScanner()"><ng-icon name="heroCameraSolid" size="24"/></button>
+
+<!-- Popup -->
+<div class="popup-overlay" *ngIf="showPopup">
+  <div class="popup-box">
+    <h3>Scan Barcode</h3>
+    <video #video autoplay></video>
+
+    <div class="controls">
+      <button class="btn" (click)="closeScanner()">❌ Close</button>
+    </div>
+  </div>
+</div>

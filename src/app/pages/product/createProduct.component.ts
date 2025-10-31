@@ -6,11 +6,12 @@ import { ProductService } from './product.service';
 import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
 import { ToastService } from '../../services/toast.service';
+import { BarcodeScannerComponent } from '../../partials/barcode/barcode-scanner.component';
 
 @Component({
   selector: 'product-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, BarcodeScannerComponent],
   templateUrl: './createProduct.component.html',
   styleUrls: ['./product.css'],
 })
@@ -74,6 +75,10 @@ export class NewProductComponent {
         },
       error: err => alert(err.error?.message || 'Product creation failed'),
     });
+  }
+
+  onBarcodeScanned(barcode: string) {
+    this.registerForm.patchValue({ p_code: barcode });
   }
 
 }

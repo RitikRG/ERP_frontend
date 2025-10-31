@@ -19,11 +19,13 @@
       <!-- Image Upload -->
       <div class="form-group image-upload">
         <label>Product Image</label>
+
         <div class="upload-box" (click)="fileInput.click()">
           <input
             type="file"
             #fileInput
             accept="image/*"
+            capture="environment"
             (change)="onFileSelected($event)"
             hidden
           />
@@ -32,7 +34,7 @@
           </ng-container>
           <ng-template #uploadPlaceholder>
             <i class="fa fa-upload"></i>
-            <p>Click to upload or drag and drop</p>
+            <p>Click to upload or use camera</p>
           </ng-template>
         </div>
       </div>
@@ -40,7 +42,10 @@
       <!-- Product Code -->
       <div class="form-group">
         <label>Product Code</label>
-        <input type="text" formControlName="p_code" placeholder="Enter product code" />
+        <div class="input_group">
+          <input type="text" formControlName="p_code" placeholder="Enter product code" />
+          <app-barcode-scanner (scanSuccess)="onBarcodeScanned($event)"></app-barcode-scanner>
+        </div>
         <small *ngIf="registerForm.get('p_code')?.invalid && registerForm.get('p_code')?.touched">
           Product code is required
         </small>

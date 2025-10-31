@@ -8,11 +8,13 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../services/toast.service';
+import { BarcodeScannerComponent } from '../../partials/barcode/barcode-scanner.component';
+
 
 @Component({
   selector: 'product-list',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, HeaderComponent, FormsModule, FontAwesomeModule, BarcodeScannerComponent],
   templateUrl: './productsList.component.html',
   styleUrls: ['./product.css'],
 })
@@ -144,6 +146,12 @@ export class ProductsListComponent implements OnInit {
   // Navigate to edit page
   editProduct(id: string) {
     this.router.navigate(['/product/edit', id]);
+  }
+
+  // Barcode scanned handler
+  onBarcodeScanned(barcode: string) {
+    this.searchTerm= barcode;
+    this.filterProducts();
   }
 
   navigateToCreate() {

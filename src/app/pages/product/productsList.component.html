@@ -19,12 +19,15 @@
     </div>
 
     <div class="right">
-      <input
-        type="text"
-        placeholder="Search by name or product code..."
-        [(ngModel)]="searchTerm"
-        (input)="filterProducts()"
-      />
+      <div class="input_group">
+        <input
+          type="text"
+          placeholder="Search by name or product code..."
+          [(ngModel)]="searchTerm"
+          (input)="filterProducts()"
+        />
+        <app-barcode-scanner (scanSuccess)="onBarcodeScanned($event)"></app-barcode-scanner>
+      </div>
     </div>
   </div>
 
@@ -47,7 +50,7 @@
         <td>
           <img
             *ngIf="product.img"
-            [src]="'http://localhost:4000' + product.img"
+            [src]="'https://192.168.1.17:4000' + product.img"
             alt="{{ product.name }}"
             class="thumb"
           />
