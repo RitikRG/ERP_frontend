@@ -106,3 +106,28 @@
   font-size: 0.8rem;
   font-weight: bold;
 }
+
+.items-section {
+  margin-top: 1rem;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.product-field, .mini-field {
+  flex: 1;
+  min-width: 120px;
+}
+
+.total-display {
+  font-weight: 600;
+  color: #2a2a2a;
+}
+
+.form-actions{
+  margin-top: 20px;
+}

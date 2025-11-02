@@ -11,6 +11,7 @@ import { NewSupplierComponent } from './pages/supplier/createSupplier.component'
 import { SupplierListComponent } from './pages/supplier/suppliersList.component';
 import { EditSupplierComponent } from './pages/supplier/editSupplier.component';
 import { CurrentStockComponent } from './pages/inventory/currentStock.component';
+import { PurchaseFormComponent } from './pages/inventory/purchase-form.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -33,5 +34,6 @@ export const routes: Routes = [
   
   // Inventory paths
   { path: 'inventory/current-stock', component: CurrentStockComponent, canActivate: [authGuard] },
+  { path: 'inventory/add-purchase', component: PurchaseFormComponent, canActivate: [authGuard] },
 
 ];

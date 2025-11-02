@@ -1,0 +1,139 @@
+<app-header>
+  <div class="box">
+    <div class="header-row">
+      <h2>Add New Purchase</h2>
+    </div>
+
+    <div class="purchase-form">
+      <form [formGroup]="purchaseForm" (ngSubmit)="submit()">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" formControlName="date" />
+          </div>
+
+            <div class="form-group">
+                <label>Status:</label>
+                <select formControlName="status">
+                    <option value="ordered">Ordered</option>
+                    <option value="recieved">Recieved</option>
+                </select>
+            </div>
+
+          <!-- Supplier Autocomplete -->
+          <div class="form-group">
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>Supplier</mat-label>
+              <input type="text" matInput formControlName="supplier_name"
+                [matAutocomplete]="autoSupplier" placeholder="Search supplier..." />
+              <mat-autocomplete #autoSupplier="matAutocomplete"
+                (optionSelected)="selectSupplier($event.option.value)">
+                <mat-option *ngFor="let s of filteredSuppliers | async" [value]="s">
+                  {{ s.name }} ({{ s.company }})
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <div style="grid-column: span 2;">
+              <!-- Product Autocomplete -->
+              <div class="form-group">
+                <mat-form-field appearance="fill" class="w-full">
+                  <mat-label>Product</mat-label>
+                  <input type="text" matInput formControlName="product_name"
+                    [matAutocomplete]="autoProduct" placeholder="Search product..." />
+                  <mat-autocomplete #autoProduct="matAutocomplete"
+                    (optionSelected)="selectProduct($event.option.value)">
+                    <mat-option *ngFor="let p of filteredProducts | async" [value]="p">
+                      {{ p.name }} ({{ p.p_code }})
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+    
+              <!-- Product Detail Table -->
+                <div *ngIf="productsTable.length > 0" class="product-details">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let p of productsTable; let i = index" [formGroup]="getItemGroup(i)">
+                                <td>{{ p.name }}</td>
+                                <td>{{ p.cost | currency:'INR' }}</td>
+                                <td><input type="number" formControlName="quantity" min="1" /></td>
+                                <td>{{ (p.cost * getItemGroup(i).get('quantity')?.value) | currency:'INR' }}</td>
+                                <td><button type="button" (click)="removeProduct(i)" class="btn-delete"><ng-icon name="heroTrashSolid" size="16"/></button></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" style="text-align: right;">Totals:</th>
+                                <th>{{ getTableTotals().totalQty }}</th>
+                                <th>{{ getTableTotals().totalAmount | currency:'INR' }}</th>
+                                <th></th>
+                            </tr>
+                    </tfoot>
+                    </table>
+                </div>
+    
+    
+              <!-- Items Array -->
+              <div formArrayName="items" style="display: none;">
+                <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="item-row">
+                  <label>Product ID:</label>
+                  <input formControlName="product_id" placeholder="Product ID" />
+    
+                  <label>Cost:</label>
+                  <input type="number" formControlName="cost" />
+    
+                  <label>Qty:</label>
+                  <input type="number" formControlName="quantity" />
+    
+                  <button type="button" (click)="removeItem(i)">Remove</button>
+                </div>
+    
+                <button type="button" (click)="addItem()">+ Add Item</button>
+              </div>
+          </div>
+
+
+            <div class="form-group">
+                <label>Payment Status:</label>
+                <select formControlName="payment_status">
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                    <option value="partial">Partial</option>
+                </select>
+            </div>
+
+            <!-- Amount Paid (shown only for Partial) -->
+            <div class="form-group" *ngIf="purchaseForm.get('payment_status')?.value === 'partial'">
+                <label>Amount Paid:</label>
+                <input type="number" formControlName="paid_amount" min="0" />
+            </div>
+
+            <!-- Due Date (hidden when Paid) -->
+            <div class="form-group" *ngIf="purchaseForm.get('payment_status')?.value !== 'paid'">
+                <label>Due Date:</label>
+                <input type="date" formControlName="payment_due_date" />
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">Add Purchase</button>
+        </div>
+      </form>
+
+      <p>{{ message }}</p>
+    </div>
+  </div>
+</app-header>
