@@ -24,6 +24,8 @@ export class HeaderComponent {
     {
       label: 'Inventory', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
         { label: 'Current Stock', icon: 'fa fa-plus', route: '/inventory/current-stock' },
+        { label: 'Add Purchase', icon: 'fa fa-plus', route: '/inventory/add-purchase' },
+        { label: 'Purchase List', icon: 'fa fa-list', route: '/inventory/list-purchase' },
       ]
     },
     {

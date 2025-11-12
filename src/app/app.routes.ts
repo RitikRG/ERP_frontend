@@ -12,6 +12,7 @@ import { SupplierListComponent } from './pages/supplier/suppliersList.component'
 import { EditSupplierComponent } from './pages/supplier/editSupplier.component';
 import { CurrentStockComponent } from './pages/inventory/currentStock.component';
 import { PurchaseFormComponent } from './pages/inventory/purchase-form.component';
+import { PurchaseListComponent } from './pages/inventory/purchaseList.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -35,5 +36,6 @@ export const routes: Routes = [
   // Inventory paths
   { path: 'inventory/current-stock', component: CurrentStockComponent, canActivate: [authGuard] },
   { path: 'inventory/add-purchase', component: PurchaseFormComponent, canActivate: [authGuard] },
+  { path: 'inventory/list-purchase', component: PurchaseListComponent, canActivate: [authGuard] },
 
 ];

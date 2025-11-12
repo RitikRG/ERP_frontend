@@ -1,0 +1,250 @@
+<app-header>
+
+<div class="box">
+  <div class="header-row">
+    <h2>Purchases</h2>
+    <button class="btn-primary" (click)="navigateToCreate()">+ Add New Purchase</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading purchases...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div class="table-controls">
+    <div class="left">
+      <label>Show:</label>
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+      </select>
+      <span>entries</span>
+    </div>
+
+    <div class="right">
+      <div class="input_group">
+        <input
+          type="text"
+          placeholder="Search by ref or supplier name..."
+          [(ngModel)]="searchTerm"
+          (input)="filterPurchases()"
+        />
+      </div>
+    </div>
+  </div>
+
+
+  <table *ngIf="!loading && errorMessage =='' && paginatedPurchases.length" class="product-table">
+    <thead>
+      <tr>
+        <th>Ref</th>
+        <th>Date</th>
+        <th>Supplier</th>
+        <th>Total Amount</th>
+        <th>Balance Amount</th>
+        <th>Due Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let purchase of paginatedPurchases" (click)="openPurchaseDetails(purchase)" class="clickable-row">
+        <td>{{ purchase.purchase_ref }}
+              <span
+                class="tooltip-container"
+                *ngIf="isDueSoon(purchase.payment_due_date)">
+                
+                <fa-icon
+                  [icon]="faExclamationTriangle"
+                  class="warning-icon">
+                </fa-icon>
+
+                <!-- Custom tooltip -->
+                <span class="custom-tooltip">
+                  {{ getDueDaysMessage(purchase.payment_due_date) }}
+                </span>
+              </span>
+        </td>
+        <td>{{ purchase.date | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ purchase.supplier_id.company}}</td>
+        <td>{{ purchase.total_amount | currency:'INR' }}</td>
+        <td>{{ purchase.balance_amount | currency:'INR' }}</td>
+        <td>{{ purchase.payment_due_date | date: 'dd/MM/yyyy' }}</td>
+        <td 
+          [ngStyle]="{
+            'color': purchase.status === 'recieved' ? 'green' :
+                      purchase.status === 'ordered' ? 'goldenrod' : 'inherit',
+            'font-weight': '600'
+          }">
+          {{ purchase.status | titlecase }}
+        </td>
+        <td class="actions_td">
+          <button class="btn-secondary" (click)="editPurchase(purchase._id)"> <fa-icon [icon]="faEdit"></fa-icon> Edit</button>
+          <button class="btn-delete" (click)="openDeleteConfirmation(purchase._id, purchase.purchase_ref, purchase.supplier_id)"><fa-icon [icon]="faTrash"></fa-icon> Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <button
+      class="btn"
+      [disabled]="page === 1"
+      (click)="page = page - 1; updatePaginatedPurchases()"
+    >
+      Prev
+    </button>
+
+    <span>Page {{ page }} of {{ totalPages() }}</span>
+
+    <button
+      class="btn"
+      [disabled]="page === totalPages()"
+      (click)="page = page + 1; updatePaginatedPurchases()"
+    >
+      Next
+    </button>
+  </div>
+
+
+  <div *ngIf="!loading && !errorMessage && !purchases.length" class="empty">
+    No products found.
+  </div>
+</div>
+
+
+<div class="confirm-popup" *ngIf="showConfirmPopup">
+  <div class="confirm-box">
+    <p>Are you sure you want to delete {{showConfirmPurchase}} ?</p>
+    <div class="buttons">
+      <!-- <button class="btn-confirm" (click)="deletePro(selectedProductId!)">Yes</button> -->
+      <button class="btn-cancel" (click)="showConfirmPopup = false">No</button>
+    </div>
+  </div>
+</div>
+
+
+</app-header>
+
+<!-- Purchase Details Popup -->
+<div class="details-popup" *ngIf="showDetailsPopup">
+  <div class="details-box a4-layout light-shadow">
+
+    <div class="details-header">
+      <h2>Purchase Invoice</h2>
+      <button class="btn-close" (click)="closePurchaseDetails()">×</button>
+    </div>
+
+    <div id="purchase-details-content" class="details-content">
+
+      <!-- Header Info -->
+      <div class="invoice-header">
+        <div class="left">
+          <h3>{{ currentOrg?.name }}</h3>
+          <p><strong>GST:</strong> {{ currentOrg?.gst }}</p>
+          <p><strong>Phone:</strong> {{ currentOrg?.phone }}</p>
+          <p><strong>Address:</strong> {{ currentOrg?.address }}</p>
+        </div>
+
+        <div class="right">
+          <h3>Supplier Details</h3>
+          <p><strong>Company:</strong> {{ selectedPurchase.supplier_id?.company }}</p>
+          <p><strong>GST:</strong> {{ selectedPurchase.supplier_id?.gst }}</p>
+          <p><strong>Email:</strong> {{ selectedPurchase.supplier_id?.email }}</p>
+          <p><strong>Phone:</strong> {{ selectedPurchase.supplier_id?.phone }}</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Purchase Info -->
+      <div class="purchase-info">
+        <p><strong>Purchase Ref:</strong> {{ selectedPurchase.purchase_ref }}</p>
+        <p><strong>Date:</strong> {{ selectedPurchase.date | date: 'dd/MM/yyyy' }}</p>
+        <p><strong>Due Date:</strong> {{ selectedPurchase.payment_due_date | date: 'dd/MM/yyyy' }}</p>
+        <p><strong>Status:</strong> {{ selectedPurchase.status | titlecase }}</p>
+      </div>
+
+      <!-- Product Table -->
+      <h4>Product Details</h4>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Code</th>
+            <th>Cost</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedPurchase.items">
+            <td>{{ item.product_id?.name }}</td>
+            <td>{{ item.product_id?.p_code }}</td>
+            <td>{{ item.cost | currency:'INR' }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.cost * item.quantity | currency:'INR' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Payment Summary -->
+      <div class="payment-summary">
+        <div class="summary-left">
+          <p><strong>Payment Method:</strong> {{ selectedPurchase.payment_method || 'N/A' }}</p>
+          <p><strong>Payment Status:</strong> {{ selectedPurchase.payment_status | titlecase }}</p>
+        </div>
+
+        <div class="summary-right">
+          <table>
+            <tr>
+              <th>Total:</th>
+              <td><strong>{{ selectedPurchase.total_amount | currency:'INR' }}</strong></td>
+            </tr>
+            <tr>
+              <th>Balance Due:</th>
+              <td><strong>{{ selectedPurchase.balance_amount | currency:'INR' }}</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- Payment History Table -->
+      <div class="payment-history" *ngIf="selectedPurchase.payments?.length">
+        <h4>Payment History</h4>
+        <table class="items-table payments-table">
+          <thead>
+            <tr>
+              <th>Payment Ref</th>
+              <th>Date</th>
+              <th>Method</th>
+              <th>Transaction ID / Cheque No</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of selectedPurchase.payments">
+              <td>{{ payment.payment_ref }}</td>
+              <td>{{ payment.date | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ payment.payment_method | titlecase }}</td>
+              <td>
+                {{ payment.transaction_id || payment.cheque_no || '—' }}
+              </td>
+              <td>{{ payment.amount | currency:'INR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- If no payments -->
+      <div class="payment-history empty" *ngIf="!selectedPurchase.payments?.length">
+        <p><em>No payments recorded for this purchase yet.</em></p>
+      </div>
+    </div>
+
+    <div class="details-actions no-print">
+      <button class="btn-primary" (click)="printPurchase()">
+        <fa-icon [icon]="faPrint"></fa-icon> Print
+      </button>
+      <button class="btn-primary" (click)="closePurchaseDetails()">Close</button>
+    </div>
+  </div>
+</div>

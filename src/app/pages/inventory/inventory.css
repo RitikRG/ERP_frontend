@@ -131,3 +131,220 @@
 .form-actions{
   margin-top: 20px;
 }
+
+/* Purchase Details Popup */
+/* --- Popup Container --- */
+.details-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+/* --- Main A4 Box --- */
+.a4-layout {
+  background: #fff;
+  width: 210mm; /* A4 width */
+  /* min-height: 297mm; A4 height */
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  padding: 25px 30px;
+  position: relative;
+  animation: fadeInScale 0.3s ease;
+  scroll-behavior: smooth;
+}
+
+.a4-layout::-webkit-scrollbar {
+  width: 8px;              /* scrollbar width */
+}
+
+.a4-layout::-webkit-scrollbar-track {
+  display: none;
+}
+
+.a4-layout::-webkit-scrollbar-thumb {
+  background: var(--primary-dark);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Header & Layout --- */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.details-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.btn-close:hover {
+  color: #000;
+}
+
+/* --- Invoice Top Section --- */
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.invoice-header .left,
+.invoice-header .right {
+  width: 48%;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.invoice-header h3 {
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+/* --- Purchase Info --- */
+.purchase-info {
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.purchase-info p {
+  margin: 4px 0;
+}
+
+/* --- Table Styles --- */
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.items-table th, .items-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.items-table th {
+  background-color: #f2f4f7;
+  font-weight: 600;
+}
+
+/* --- Payment Summary --- */
+.payment-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.payment-summary table {
+  border-collapse: collapse;
+}
+
+.payment-summary th, .payment-summary td {
+  padding: 4px 8px;
+}
+
+.payment-summary th {
+  text-align: right;
+  color: #555;
+}
+
+.payment-summary td {
+  text-align: right;
+  min-width: 100px;
+}
+
+.summary-left {
+  width: 50%;
+}
+
+.summary-right {
+  width: 45%;
+}
+
+/* --- Action Buttons --- */
+.details-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* --- Print Styles --- */
+@media print {
+  .details-popup {
+    position: static;
+    background: none;
+  }
+  .a4-layout {
+    width: 100%;
+    min-height: auto;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .no-print {
+    display: none;
+  }
+}
+
+/* Payment History Section */
+.payment-history {
+  margin-top: 25px;
+}
+
+.payment-history h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 4px;
+}
+
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payments-table th,
+.payments-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.payments-table th {
+  background-color: #f2f4f7;
+  font-weight: 600;
+}
+
+.payment-history.empty {
+  margin-top: 15px;
+  text-align: center;
+  color: #777;
+  font-size: 0.9rem;
+  font-style: italic;
+}

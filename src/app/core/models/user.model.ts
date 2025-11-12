@@ -7,4 +7,5 @@ export interface User {
   phone?: string;
   createdAt?: string;
   updatedAt?: string;
+  org?: any;
 }

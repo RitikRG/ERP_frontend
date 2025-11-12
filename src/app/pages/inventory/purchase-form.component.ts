@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PurchaseService } from './purchase.service';
 import { HeaderComponent } from '../../partials/header/header.component';
@@ -10,6 +11,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { Observable, startWith, map } from 'rxjs';
 import { NgIconComponent } from '@ng-icons/core';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-purchase-form',
@@ -48,7 +50,9 @@ export class PurchaseFormComponent implements OnInit {
     private fb: FormBuilder,
     private purchaseService: PurchaseService,
     private auth: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toast: ToastService,
+    private router: Router,
   ) {
     this.purchaseForm = this.fb.group({
       org_id: ['', Validators.required],
@@ -57,9 +61,13 @@ export class PurchaseFormComponent implements OnInit {
       supplier_name: [''], // search input for supplier
       date: [new Date().toISOString().substring(0, 10), Validators.required],
       payment_status: ['unpaid', Validators.required],
+      payment_method: ['cash'],
+      transaction_id: '',
+      cheque_no: '',
       payment_due_date: [''],
       paid_amount: [''],
       total_amount: [0, Validators.required],
+      payment_date: [new Date().toISOString().substring(0, 10)],
       items: this.fb.array([]),
       product_name: [''] // for product search
     });
@@ -212,7 +220,15 @@ export class PurchaseFormComponent implements OnInit {
   submit() {
     if (this.purchaseForm.invalid) return;
     this.purchaseService.createPurchase(this.purchaseForm.value).subscribe({
-      next: () => this.message = 'Purchase created successfully!',
+      next: () =>{
+            // Show success toast
+            this.toast.showSuccess('Purchase Added successfully!');
+
+            // Wait a short time so user can see the toast, then navigate
+            setTimeout(() => {
+              this.router.navigate(['/inventory/list-purchase']);
+            }, 500);
+        },
       error: (err) => this.message = 'Error: ' + err.message
     });
   }

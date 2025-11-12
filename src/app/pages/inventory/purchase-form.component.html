@@ -114,6 +114,43 @@
                 </select>
             </div>
 
+            <!-- Payment Method (shown only for paid/partially paid) -->
+            <div class="form-group" *ngIf="purchaseForm.get('payment_status')?.value !== 'unpaid'">
+                <label>Payment Method:</label>
+                <select formControlName="payment_method">
+                    <option value="cash">Cash</option>
+                    <option value="upi">UPI</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="transfer">Bank Transfer</option>
+                    <option value="others">Other</option>
+                </select>
+            </div>
+
+            <!-- Transaction ID (shown only for UPI/Bank Transfer) -->
+            <div
+              class="form-group"
+              *ngIf="['upi', 'transfer'].includes(purchaseForm.get('payment_method')?.value)"
+            >
+              <label>Transaction ID:</label>
+              <input type="text" formControlName="transaction_id" />
+            </div>
+
+            
+            <!-- Cheque Number shown only for cheque -->
+            <div class="form-group" *ngIf="purchaseForm.get('payment_method')?.value === 'cheque'">
+              <label>Cheque No:</label>
+              <input type="text" formControlName="cheque_no" />
+            </div>
+            
+            <!-- Payment Date (shown only for paid/partial Transfer) -->
+            <div
+              class="form-group"
+              *ngIf="['paid', 'partial'].includes(purchaseForm.get('payment_status')?.value)"
+            >
+              <label>Payment Date</label>
+              <input type="date" formControlName="payment_date" />
+            </div>
+
             <!-- Amount Paid (shown only for Partial) -->
             <div class="form-group" *ngIf="purchaseForm.get('payment_status')?.value === 'partial'">
                 <label>Amount Paid:</label>

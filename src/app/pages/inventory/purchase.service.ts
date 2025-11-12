@@ -14,8 +14,8 @@ export class PurchaseService {
     return this.http.post(this.baseUrl, data);
   }
 
-  getPurchases(): Observable<any> {
-    return this.http.get(this.baseUrl);
+  getAllPurchases(org_id?: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}?org_id=${org_id}`);
   }
 
   // Getting suppliers 
