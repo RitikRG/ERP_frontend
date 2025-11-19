@@ -30,4 +30,21 @@ export class PurchaseService {
     return this.http.get(url);
   }
 
+  // Change purchase status
+  changeStatus(org_id: string, purchaseId: string, status: string) {
+    return this.http.put<any>(
+      `${this.baseUrl}/${org_id}/${purchaseId}/status`,
+      { status }
+    );
+  }
+
+  // Add payment 
+  addPurchasePayment(org_id: string, purchase_id: string, data: any) {
+    return this.http.post<any>(
+      `${this.baseUrl}/org/${org_id}/purchase/${purchase_id}/payment`,
+      data
+    );
+  }
+
+
 }

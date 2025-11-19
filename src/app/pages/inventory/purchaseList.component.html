@@ -76,8 +76,8 @@
           {{ purchase.status | titlecase }}
         </td>
         <td class="actions_td">
-          <button class="btn-secondary" (click)="editPurchase(purchase._id)"> <fa-icon [icon]="faEdit"></fa-icon> Edit</button>
-          <button class="btn-delete" (click)="openDeleteConfirmation(purchase._id, purchase.purchase_ref, purchase.supplier_id)"><fa-icon [icon]="faTrash"></fa-icon> Delete</button>
+          <button class="btn-secondary" (click)="openStatusChangeConfirmation(purchase._id, purchase.purchase_ref, purchase.supplier_id.company); $event.stopPropagation()"> <fa-icon [icon]="faEdit"></fa-icon> Change Status</button>
+          <button class="btn-secondary" (click)="addPayment(purchase._id); $event.stopPropagation()"><fa-icon [icon]="faAdd"></fa-icon> Add Payment</button>
         </td>
       </tr>
     </tbody>
@@ -110,18 +110,39 @@
 </div>
 
 
+</app-header>
+
+<!-- Confirm status change popup -->
 <div class="confirm-popup" *ngIf="showConfirmPopup">
   <div class="confirm-box">
-    <p>Are you sure you want to delete {{showConfirmPurchase}} ?</p>
-    <div class="buttons">
-      <!-- <button class="btn-confirm" (click)="deletePro(selectedProductId!)">Yes</button> -->
-      <button class="btn-cancel" (click)="showConfirmPopup = false">No</button>
+
+    <p>Change status of <strong>{{ showConfirmPurchase }}</strong></p>
+
+    <!-- Status dropdown -->
+    <div class="dropdown-row">
+      <label for="statusSelect"><strong>Select New Status:</strong></label>
+      <select id="statusSelect" [(ngModel)]="selectedStatus">
+        <option value="ordered">Ordered</option>
+        <option value="recieved">Recieved</option>
+      </select>
     </div>
+
+    <div class="buttons">
+      <button class="btn-confirm"
+              (click)="changePurchaseStatus(selectedPurchaseId!)">
+        Yes
+      </button>
+
+      <button class="btn-cancel"
+              (click)="showConfirmPopup = false">
+        No
+      </button>
+    </div>
+
   </div>
 </div>
 
 
-</app-header>
 
 <!-- Purchase Details Popup -->
 <div class="details-popup" *ngIf="showDetailsPopup">
@@ -246,5 +267,86 @@
       </button>
       <button class="btn-primary" (click)="closePurchaseDetails()">Close</button>
     </div>
+  </div>
+</div>
+
+
+<!-- Payment Popup -->
+<div class="payment-popup" *ngIf="showPaymentPopup">
+  <div class="payment-box light-shadow">
+
+    <div class="header">
+      <h2>Payments for {{ selectedPurchaseForPayment.purchase_ref }}</h2>
+      <button class="btn-close" (click)="showPaymentPopup = false">×</button>
+    </div>
+
+    <!-- Existing Payments Table -->
+    <div *ngIf="selectedPurchaseForPayment.payments?.length">
+      <h3>Existing Payments</h3>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Date</th>
+            <th>Method</th>
+            <th>Txn / Cheque</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let pay of selectedPurchaseForPayment.payments">
+            <td>{{ pay.payment_ref }}</td>
+            <td>{{ pay.date | date:'dd/MM/yyyy' }}</td>
+            <td>{{ pay.payment_method }}</td>
+            <td>{{ pay.transaction_id || pay.cheque_no || '—' }}</td>
+            <td>{{ pay.amount | currency:'INR' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No payments -->
+    <div *ngIf="!selectedPurchaseForPayment.payments?.length">
+      <p><em>No payment added yet.</em></p>
+    </div>
+
+    <hr />
+
+    <!-- Add New Payment Form -->
+    <h3 style="margin-top: 10px;">Add New Payment</h3>
+
+    <div class="form-row">
+      <label>Amount</label>
+      <input type="number" [(ngModel)]="newPayment.amount" min="0" />
+    </div>
+
+    <div class="form-row">
+      <label>Payment Method</label>
+      <select [(ngModel)]="newPayment.payment_method">
+        <option value="cash">Cash</option>
+        <option value="upi">UPI</option>
+        <option value="cheque">Cheque</option>
+        <option value="transfer">Bank Transfer</option>
+        <option value="others">Others</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Transaction ID</label>
+      <input type="text" [(ngModel)]="newPayment.transaction_id" />
+    </div>
+
+    <div class="form-row">
+      <label>Cheque No</label>
+      <input type="text" [(ngModel)]="newPayment.cheque_no" />
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" (click)="savePayment()">Save Payment</button>
+      <button class="btn-primary" (click)="showPaymentPopup = false">Cancel</button>
+    </div>
+
   </div>
 </div>

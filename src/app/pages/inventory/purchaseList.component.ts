@@ -6,7 +6,7 @@ import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faExclamationTriangle, faEdit, faTrash, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faEdit, faTrash, faPrint, faAdd } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../services/toast.service';
 import { PurchaseService } from './purchase.service';
 
@@ -24,6 +24,7 @@ export class PurchaseListComponent implements OnInit {
   faTrash = faTrash;
   faExclamationTriangle = faExclamationTriangle;
   faPrint = faPrint;
+  faAdd = faAdd;
 
   currentOrg: any = null;
 
@@ -41,9 +42,19 @@ export class PurchaseListComponent implements OnInit {
 
   // Confirmation popup
   showConfirmPopup = false;
-  showConfirmPurchase = 'this product';
+  showConfirmPurchase = 'this purchase';
   selectedPurchaseId: string | null = null;
+  selectedStatus: string = 'recieved';
 
+  // Add Payment Popup
+  showPaymentPopup = false;
+  selectedPurchaseForPayment: any = null;
+  newPayment: any = {
+    amount: null,
+    payment_method: 'cash',
+    transaction_id: '',
+    cheque_no: ''
+  };
 
   constructor(
     private purchaseService: PurchaseService,
@@ -123,39 +134,32 @@ export class PurchaseListComponent implements OnInit {
     this.updatePaginatedPurchases();
   }
 
-  openDeleteConfirmation(productId: string, reference:string, supplier:string) {
-    this.selectedPurchaseId = productId;
+  openStatusChangeConfirmation(purchaseId: string, reference:string, supplier:string) {
+    this.selectedPurchaseId = purchaseId;
     this.showConfirmPopup = true;
     this.showConfirmPurchase = reference + "(" + supplier + ")";
   }
 
-  deleteProduct(productId: string) {
-    // Call ProductService to delete
-    const orgId = this.auth.currentUserValue?.org_id||'';
-    // this.purchaseService.deletePurchase(orgId, productId).subscribe({
-    //   next: (res) => {
-    //     // Remove deleted product from lists
-    //     this.purchases = this.purchases.filter(p => p._id !== productId);
-    //     this.filterPurchases(); // refresh filtered & paginated view
-    //     this.showConfirmPopup = false;
-    //     this.selectedPurchaseId = null;
-    //     this.toast.showSuccess('Purchase Deleted Successfully');
-    //     this.cdr.detectChanges();
-    //   },
-    //   error: (err) => {
-    //     console.error('Error deleting product:', err);
-    //     this.showConfirmPopup = false;
-    //     this.selectedPurchaseId = null;
-    //     this.showConfirmPurchase = "this purchase";
-    //   }
-    // });
+
+  // Change purchase status (called after confirming popup)
+  changePurchaseStatus(id: string) {
+    const orgId = this.auth.currentUserValue?.org_id;
+
+    this.purchaseService.changeStatus(orgId??"", id, this.selectedStatus)
+      .subscribe({
+        next: (res) => {
+          this.toast.showSuccess("Status updated successfully!");
+          this.showConfirmPopup = false;
+          this.fetchPurchases();  
+        },
+        error: (err) => {
+          this.toast.showError(err.error?.message || "Failed to update status");
+          this.showConfirmPopup = false;
+        }
+      });
   }
 
 
-  // Navigate to edit page
-  editPurchase(id: string) {
-    this.router.navigate(['/inventory/edit-purchase', id]);
-  }
 
   // Barcode scanned handler
   onBarcodeScanned(barcode: string) {
@@ -353,5 +357,41 @@ export class PurchaseListComponent implements OnInit {
     printWindow!.document.close();
     printWindow!.print();
   }
+
+  // Add Payment
+  addPayment(purchaseId: string) {
+    const purchase = this.purchases.find(p => p._id === purchaseId);
+    this.selectedPurchaseForPayment = purchase;
+
+    // Reset form
+    this.newPayment = {
+      amount: null,
+      payment_method: 'cash',
+      transaction_id: '',
+      cheque_no: ''
+    };
+
+    this.showPaymentPopup = true;
+  }
+
+  savePayment() {
+    const orgId = this.auth.currentUserValue?.org_id;
+    if (!orgId || !this.selectedPurchaseForPayment?._id) return;
+
+    this.purchaseService
+      .addPurchasePayment(orgId, this.selectedPurchaseForPayment._id, this.newPayment)
+      .subscribe({
+        next: (res) => {
+          this.toast.showSuccess("Payment added successfully!");
+          this.showPaymentPopup = false;
+          this.fetchPurchases(); // refresh list
+        },
+        error: (err) => {
+          this.toast.showError(err.error?.message || "Failed to add payment");
+        }
+      });
+  }
+
+
 
 }
