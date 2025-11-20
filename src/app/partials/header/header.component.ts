@@ -22,6 +22,13 @@ export class HeaderComponent {
   menuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'fa fa-home', route: '#' },
     {
+      label: 'Sales', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+        { label: 'Add Sale', icon: 'fa fa-plus', route: '/sales/add-sale' },
+        { label: 'Sales List', icon: 'fa fa-plus', route: '/sales/list' },
+        { label: 'Purchase List', icon: 'fa fa-list', route: '/inventory/list-purchase' },
+      ]
+    },
+    {
       label: 'Inventory', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
         { label: 'Current Stock', icon: 'fa fa-plus', route: '/inventory/current-stock' },
         { label: 'Add Purchase', icon: 'fa fa-plus', route: '/inventory/add-purchase' },

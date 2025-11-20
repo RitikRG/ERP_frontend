@@ -1,0 +1,329 @@
+<app-header>
+
+  <div class="box">
+    <div class="header-row">
+      <h2>Sales</h2>
+      <button class="btn-primary" (click)="navigateToCreate()">+ Add New Sale</button>
+    </div>
+
+    <div *ngIf="loading" class="loading">Loading sales...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <div class="table-controls">
+      <div class="left">
+        <label>Show:</label>
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+        </select>
+        <span>entries</span>
+      </div>
+
+      <div class="right">
+        <div class="input_group">
+          <input
+            type="text"
+            placeholder="Search by ref or customer mobile..."
+            [(ngModel)]="searchTerm"
+            (input)="filterSales()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <table *ngIf="!loading && errorMessage == '' && paginatedSales.length" class="product-table">
+      <thead>
+        <tr>
+          <th>Ref</th>
+          <th>Date</th>
+          <th>Customer (Mobile)</th>
+          <th>Total Amount</th>
+          <th>Final Amount</th>
+          <th>Discount</th>
+          <th>Balance Amount</th>
+          <th>Due Date</th>
+          <th>Payment Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let sale of paginatedSales"
+            (click)="openSaleDetails(sale)"
+            class="clickable-row">
+
+          <td>{{ sale.sale_ref }}</td>
+
+          <td>{{ sale.date | date: 'dd/MM/yyyy' }}</td>
+
+          <!-- A: show customer mobile_number -->
+          <td>{{ sale.customer_id?.mobile_number }}</td>
+
+          <td>{{ sale.total_amount | currency:'INR' }}</td>
+          <td>{{ sale.final_amount | currency:'INR' }}</td>
+          <td>{{ sale.total_amount - sale.final_amount | currency:'INR' }}</td>
+
+          <td>{{ sale.balance_amount | currency:'INR' }}</td>
+
+          <td>{{ sale.payment_due_date | date: 'dd/MM/yyyy' }}</td>
+
+          <td>
+            {{ sale.payment_status | titlecase }}
+          </td>
+
+          <td class="actions_td">
+            <button class="btn-secondary"
+                    (click)="addPayment(sale._id); $event.stopPropagation()">
+              <fa-icon [icon]="faAdd"></fa-icon> Add Payment
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="btn"
+        [disabled]="page === 1"
+        (click)="page = page - 1; updatePaginatedSales()">
+        Prev
+      </button>
+
+      <span>Page {{ page }} of {{ totalPages() }}</span>
+
+      <button
+        class="btn"
+        [disabled]="page === totalPages()"
+        (click)="page = page + 1; updatePaginatedSales()">
+        Next
+      </button>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && !sales.length" class="empty">
+      No sales found.
+    </div>
+  </div>
+
+</app-header>
+
+
+<!-- Sale Details Popup -->
+<div class="details-popup" *ngIf="showDetailsPopup">
+  <div class="details-box a4-layout light-shadow">
+
+    <div class="details-header">
+      <h2>Sale Invoice</h2>
+      <button class="btn-close" (click)="closeSaleDetails()">×</button>
+    </div>
+
+    <div class="details-content">
+
+      <!-- Header Info -->
+      <div class="invoice-header">
+        <div class="left">
+          <h3>{{ currentOrg?.name }}</h3>
+          <p><strong>GST:</strong> {{ currentOrg?.gst }}</p>
+          <p><strong>Phone:</strong> {{ currentOrg?.phone }}</p>
+          <p><strong>Address:</strong> {{ currentOrg?.address }}</p>
+        </div>
+
+        <div class="right">
+          <h3>Customer Details</h3>
+          <p><strong>Name:</strong> {{ selectedSale.customer_id?.name || 'N/A' }}</p>
+          <p><strong>Mobile:</strong> {{ selectedSale.customer_id?.mobile_number }}</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Sale Info -->
+      <div class="sale-info">
+        <p><strong>Sale Ref:</strong> {{ selectedSale.sale_ref }}</p>
+        <p><strong>Date:</strong> {{ selectedSale.date | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Due Date:</strong> {{ selectedSale.payment_due_date | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Status:</strong> {{ selectedSale.payment_status | titlecase }}</p>
+      </div>
+
+      <!-- Product Table -->
+      <h4>Product Details</h4>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Code</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedSale.items">
+            <td>{{ item.product_id?.name }}</td>
+            <td>{{ item.product_id?.p_code }}</td>
+            <td>{{ item.price | currency:'INR' }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price * item.quantity | currency:'INR' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Payment Summary -->
+      <div class="payment-summary">
+        <div class="summary-left">
+          <p><strong>Payment Status:</strong> {{ selectedSale.payment_status | titlecase }}</p>
+        </div>
+
+        <div class="summary-right">
+          <table>
+            <tr>
+              <th>Total:</th>
+              <td><strong>{{ selectedSale.total_amount | currency:'INR' }}</strong></td>
+            </tr>
+            <tr *ngIf="selectedSale.discount_type && selectedSale.discount_type !== 'none'">
+              <th>Discount:</th>
+              <td>
+                <strong>
+                  <ng-container [ngSwitch]="selectedSale.discount_type">
+                    <span *ngSwitchCase="'percent'">
+                      {{ selectedSale.discount_value }} %
+                    </span>
+                    <span *ngSwitchCase="'fixed'">
+                      {{ selectedSale.discount_value | currency:'INR' }}
+                    </span>
+                    <span *ngSwitchDefault>—</span>
+                  </ng-container>
+                </strong>
+              </td>
+            </tr>
+            <tr>
+              <th>Final Amount:</th>
+              <td><strong>{{ selectedSale.final_amount | currency:'INR' }}</strong></td>
+            </tr>
+            <tr>
+              <th>Balance Due:</th>
+              <td><strong>{{ selectedSale.balance_amount | currency:'INR' }}</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="payment-history" *ngIf="selectedSale.payments?.length">
+        <h4>Payment History</h4>
+        <table class="items-table payments-table">
+          <thead>
+            <tr>
+              <th>Payment Ref</th>
+              <th>Date</th>
+              <th>Method</th>
+              <th>Transaction ID / Cheque No</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of selectedSale.payments">
+              <td>{{ payment.payment_ref }}</td>
+              <td>{{ payment.date | date:'dd/MM/yyyy' }}</td>
+              <td>{{ payment.payment_method | titlecase }}</td>
+              <td>{{ payment.transaction_id || payment.cheque_no || '—' }}</td>
+              <td>{{ payment.amount | currency:'INR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="payment-history empty" *ngIf="!selectedSale.payments?.length">
+        <p><em>No payments recorded for this sale yet.</em></p>
+      </div>
+
+    </div>
+
+    <div class="details-actions no-print">
+      <button class="btn-primary" (click)="printSale()">
+        <fa-icon [icon]="faPrint"></fa-icon> Print
+      </button>
+      <button class="btn-primary" (click)="closeSaleDetails()">Close</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Payment Popup -->
+<div class="payment-popup" *ngIf="showPaymentPopup">
+  <div class="payment-box light-shadow">
+
+    <div class="header">
+      <h2>Payments for {{ selectedSaleForPayment.sale_ref }}</h2>
+      <button class="btn-close" (click)="showPaymentPopup = false">×</button>
+    </div>
+
+    <!-- Existing Payments Table -->
+    <div *ngIf="selectedSaleForPayment.payments?.length">
+      <h3>Existing Payments</h3>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Date</th>
+            <th>Method</th>
+            <th>Txn / Cheque</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let pay of selectedSaleForPayment.payments">
+            <td>{{ pay.payment_ref }}</td>
+            <td>{{ pay.date | date:'dd/MM/yyyy' }}</td>
+            <td>{{ pay.payment_method }}</td>
+            <td>{{ pay.transaction_id || pay.cheque_no || '—' }}</td>
+            <td>{{ pay.amount | currency:'INR' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No payments -->
+    <div *ngIf="!selectedSaleForPayment.payments?.length">
+      <p><em>No payment added yet.</em></p>
+    </div>
+
+    <hr />
+
+    <!-- Add New Payment Form -->
+    <h3 style="margin-top: 10px;">Add New Payment</h3>
+
+    <div class="form-row">
+      <label>Amount</label>
+      <input type="number" [(ngModel)]="newPayment.amount" min="0" />
+    </div>
+
+    <div class="form-row">
+      <label>Payment Method</label>
+      <select [(ngModel)]="newPayment.payment_method">
+        <option value="cash">Cash</option>
+        <option value="upi">UPI</option>
+        <option value="cheque">Cheque</option>
+        <option value="transfer">Bank Transfer</option>
+        <option value="others">Others</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Transaction ID</label>
+      <input type="text" [(ngModel)]="newPayment.transaction_id" />
+    </div>
+
+    <div class="form-row">
+      <label>Cheque No</label>
+      <input type="text" [(ngModel)]="newPayment.cheque_no" />
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" (click)="savePayment()">Save Payment</button>
+      <button class="btn-primary" (click)="showPaymentPopup = false">Cancel</button>
+    </div>
+
+  </div>
+</div>

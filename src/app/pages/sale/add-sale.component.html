@@ -1,0 +1,193 @@
+<app-header>
+  <div class="box">
+    <div class="header-row">
+      <h2>Add New Sale</h2>
+    </div>
+
+    <form [formGroup]="saleForm" (ngSubmit)="submit()" class="purchase-form">
+
+      <div class="form-grid">
+
+        <!-- Date -->
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" formControlName="date">
+        </div>
+
+        <!-- Customer Autocomplete -->
+        <div class="form-group">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Customer</mat-label>
+            <input type="text" matInput formControlName="customer_name"
+                   [matAutocomplete]="autoCust"
+                   placeholder="Search customer...">
+            <mat-autocomplete #autoCust="matAutocomplete"
+                                [displayWith]="displayCustomer"
+                              (optionSelected)="selectCustomer($event.option.value)">
+              <mat-option *ngFor="let c of filteredCustomers | async" [value]="c">
+                {{ c.name || 'N/A' }} ({{ c.mobile_number }})
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <!-- Product Autocomplete -->
+        <div class="form-group" style="grid-column: span 2;">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Product</mat-label>
+            <input type="text" matInput formControlName="product_name"
+                   [matAutocomplete]="productAuto"
+                   placeholder="Search product...">
+            <mat-autocomplete #productAuto="matAutocomplete"
+                              (optionSelected)="selectProduct($event.option.value)">
+              <mat-option *ngFor="let p of filteredProducts | async" [value]="p">
+                {{ p.name }} ({{ p.p_code }})
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <!-- Product Table -->
+          <div *ngIf="productsTable.length > 0" class="product-details">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Unit Price</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let p of productsTable; let i = index" [formGroup]="getItemGroup(i)">
+                  <td>{{ p.name }}</td>
+                  <td>{{ p.price | currency:'INR' }}</td>
+
+                  <td>
+                    <input type="number"
+                           formControlName="quantity"
+                           min="1"
+                           (input)="calculateTotal()">
+                  </td>
+
+                  <td>
+                    {{ (p.price * getItemGroup(i).get('quantity')?.value) | currency:'INR' }}
+                  </td>
+
+                  <td>
+                    <button type="button" class="btn-delete"
+                            (click)="removeProduct(i)">
+                      <ng-icon name="heroTrashSolid" size="16"></ng-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+
+              <tfoot>
+                <tr>
+                  <th colspan="2" style="text-align:right;">Totals:</th>
+                  <th>{{ calculateTotal().totalQty }}</th>
+                  <th>{{ total_amount | currency:'INR' }}</th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Discount Section -->
+        <div class="form-group full-width">
+        <label>Discount Type:</label>
+        <select formControlName="discount_type" (change)="calculateTotal()">
+            <option value="none">None</option>
+            <option value="percent">Percentage (%)</option>
+            <option value="fixed">Fixed Amount (₹)</option>
+        </select>
+        </div>
+
+        <div class="form-group" 
+            *ngIf="saleForm.get('discount_type')?.value !== 'none'">
+        <label>Discount Value:</label>
+        <input type="number" formControlName="discount_value" (input)="calculateTotal()" />
+        </div>
+
+        <div class="form-group full-width">
+        <label><strong>Final Amount:</strong></label>
+        <div class="amount-box">
+            {{ calculateTotal().final | currency:'INR' }}
+        </div>
+        </div>
+
+        <!-- Collect Payment -->
+        <div class="form-group full-width" *ngIf="saleForm.get('payment_status')?.value !== 'unpaid'">
+            <button type="button" class="btn-primary" (click)="collectPayment()">Collect UPI Payment</button>
+        </div>
+
+
+        <!-- Payment Status -->
+        <div class="form-group">
+          <label>Payment Status:</label>
+          <select formControlName="payment_status">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+          </select>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-group" *ngIf="saleForm.get('payment_status')?.value !== 'unpaid'">
+          <label>Payment Method:</label>
+          <select formControlName="payment_method">
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+            <option value="cheque">Cheque</option>
+            <option value="transfer">Bank Transfer</option>
+            <option value="others">Other</option>
+          </select>
+        </div>
+
+        <!-- Transaction ID -->
+        <div class="form-group"
+             *ngIf="['upi','transfer'].includes(saleForm.get('payment_method')?.value)">
+          <label>Transaction ID:</label>
+          <input type="text" formControlName="transaction_id">
+        </div>
+
+        <!-- Cheque No -->
+        <div class="form-group"
+             *ngIf="saleForm.get('payment_method')?.value === 'cheque'">
+          <label>Cheque No:</label>
+          <input type="text" formControlName="cheque_no">
+        </div>
+
+        <!-- Payment Date -->
+        <div class="form-group"
+             *ngIf="['paid','partial'].includes(saleForm.get('payment_status')?.value)">
+          <label>Payment Date:</label>
+          <input type="date" formControlName="payment_date">
+        </div>
+
+        <!-- Amount Paid -->
+        <div class="form-group"
+             *ngIf="saleForm.get('payment_status')?.value === 'partial'">
+          <label>Amount Paid:</label>
+          <input type="number" formControlName="paid_amount">
+        </div>
+
+        <!-- Due Date -->
+        <div class="form-group"
+             *ngIf="saleForm.get('payment_status')?.value !== 'paid'">
+          <label>Due Date:</label>
+          <input type="date" formControlName="payment_due_date">
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="submit-btn" type="submit">Add Sale</button>
+      </div>
+
+    </form>
+  </div>
+</app-header>
