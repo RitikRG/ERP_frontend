@@ -269,31 +269,55 @@ export class AddSaleComponent implements OnInit {
 
 
   collectPayment() {
+    // If partial → use paid_amount
+    const paymentStatus = this.saleForm.get('payment_status')?.value;
+    const paidAmount = Number(this.saleForm.get('paid_amount')?.value || 0);
+
+    // Calculate final total (after discount)
     const finalAmount = this.calculateTotal().final;
 
-    if (!finalAmount || finalAmount <= 0) {
-      this.toast.showError("Final amount is invalid.");
+    let amountToPay = finalAmount;
+
+    // If partial: Razorpay should take "paid_amount"
+    if (paymentStatus === 'partial') {
+      if (!paidAmount || paidAmount <= 0) {
+        this.toast.showError("Enter a valid partial paid amount.");
+        return;
+      }
+      amountToPay = paidAmount;
+    }
+
+    // Validate
+    if (!amountToPay || amountToPay <= 0) {
+      this.toast.showError("Payment amount is invalid.");
       return;
     }
 
     const options = {
       key: "rzp_test_Ri763pD7uWDKlT",
-      amount: Math.round(finalAmount * 100), // convert to paisa
+      amount: Math.round(amountToPay * 100), // Convert to paisa
       currency: "INR",
       name: "Your Business Name",
       description: "Sale Payment",
       theme: { color: "#3f51b5" },
-      
+
       handler: (response: any) => {
         console.log("Payment success:", response);
 
-        // Auto-fill transaction ID in form
         this.saleForm.patchValue({
-          payment_method: "upi", 
           transaction_id: response.razorpay_payment_id,
-          payment_status: "paid",
-          paid_amount: finalAmount
+          payment_method: "upi",  // Auto-switch to UPI
         });
+
+        // If full payment was selected
+        if (paymentStatus === "paid") {
+          this.saleForm.patchValue({ paid_amount: finalAmount });
+        }
+
+        // If partial payment was selected → keep user value
+        if (paymentStatus === "partial") {
+          this.saleForm.patchValue({ paid_amount: paidAmount });
+        }
 
         this.toast.showSuccess("Payment collected successfully!");
       },
@@ -305,31 +329,22 @@ export class AddSaleComponent implements OnInit {
       },
 
       prefill: {
-        name: this.saleForm.get('customer_name')?.value || "",
-        contact: this.getSelectedCustomerMobile(),
+        name: this.saleForm.get('customer_name')?.value?.name || "",
+        contact: this.saleForm.get('customer_name')?.value?.mobile_number || "",
       },
 
       method: {
         upi: true,
         card: false,
         netbanking: false,
-        wallet: false,
-        emi: false,
-        paylater: false,
-      },
-
-      upi: {
-        flow: "qr" 
-      },
-      image_options: {
-        hide: false,
-        image_size: 200  
+        wallet: false
       }
     };
 
     const rzp = new Razorpay(options);
     rzp.open();
   }
+
 
 
   submit() {

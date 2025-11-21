@@ -321,6 +321,10 @@
     </div>
 
     <div class="actions">
+      <button class="btn-primary" type="button" *ngIf="newPayment.payment_method?.toLowerCase() === 'upi'" (click)="collectPayment()">
+          Collect via UPI (Razorpay)
+      </button>
+
       <button class="btn-primary" (click)="savePayment()">Save Payment</button>
       <button class="btn-primary" (click)="showPaymentPopup = false">Cancel</button>
     </div>

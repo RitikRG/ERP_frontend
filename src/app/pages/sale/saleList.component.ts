@@ -10,6 +10,8 @@ import { HeaderComponent } from '../../partials/header/header.component';
 import { ToastService } from '../../services/toast.service';
 import { SaleService } from './sale.service';
 
+declare var Razorpay: any;
+
 @Component({
   selector: 'sale-list',
   standalone: true,
@@ -328,4 +330,57 @@ export class SaleListComponent implements OnInit {
         }
       });
   }
+
+  collectPayment() {
+    if (!this.selectedSaleForPayment) return;
+
+    const sale = this.selectedSaleForPayment;
+
+    let amountToPay = Number(this.newPayment.amount || 0);
+
+    if (!amountToPay || amountToPay <= 0) {
+      this.toast.showError("Enter a valid amount");
+      return;
+    }
+
+    const options = {
+      key: "rzp_test_Ri763pD7uWDKlT",
+      amount: Math.round(amountToPay * 100), // convert to paisa
+      currency: "INR",
+      name: "Your Business Name",
+      description: "Sale Payment",
+      theme: { color: "#3f51b5" },
+
+      handler: (response: any) => {
+        console.log("Payment success:", response.razorpay_payment_id);
+
+        // Auto-fill payment fields
+        this.newPayment= {
+          amount: amountToPay,
+          payment_method: 'upi',
+          transaction_id: response.razorpay_payment_id,
+          cheque_no: ''
+        };
+        this.cdr.detectChanges();
+
+        this.toast.showSuccess("Payment successful — transaction ID auto-filled!");
+      },
+
+      prefill: {
+        name: sale?.customer_id?.name || "",
+        contact: sale?.customer_id?.mobile_number || ""
+      },
+
+      method: {
+        upi: true,
+        card: false,
+        netbanking: false,
+        wallet: false
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
+
 }
