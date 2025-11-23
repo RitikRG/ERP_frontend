@@ -1,0 +1,45 @@
+<app-header>
+<div class="settings-container">
+
+  <h2>Settings</h2>
+
+  <!-- USER SETTINGS -->
+  <section class="settings-section">
+    <h3>User Settings</h3>
+
+    <label>Name</label>
+    <input type="text" [(ngModel)]="user.name">
+
+    <label>Phone Number</label>
+    <input type="text" [(ngModel)]="user.phone">
+
+    <label>New Password</label>
+    <input type="password" [(ngModel)]="user.password">
+
+    <button class="btn-primary" (click)="saveUserSettings()">Save User Settings</button>
+  </section>
+
+  <!-- ORG SETTINGS -->
+  <section class="settings-section">
+    <h3>Organisation Settings</h3>
+
+    <label>Organisation Name</label>
+    <input type="text" [(ngModel)]="org.name">
+
+    <label>GST Number</label>
+    <input type="text" [(ngModel)]="org.gst">
+
+    <label>Phone Number</label>
+    <input type="text" [(ngModel)]="org.phone">
+
+    <label>Address</label>
+    <textarea rows="3" [(ngModel)]="org.address"></textarea>
+
+    <label>Razorpay Key</label>
+    <input type="text" [(ngModel)]="org.razorpay_key">
+
+    <button class="btn-primary" (click)="saveOrgSettings()">Save Organisation Settings</button>
+  </section>
+
+</div>
+</app-header>

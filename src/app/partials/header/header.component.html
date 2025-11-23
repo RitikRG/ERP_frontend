@@ -38,15 +38,58 @@
       </button>
 
       <div class="search">
-        <input type="text" placeholder="Search or type a command (Ctrl + O)" />
+        <input
+          type="text"
+          placeholder="Search modules, pages..."
+          [(ngModel)]="searchText"
+          (input)="onSearchChange()"
+          (keydown.arrowDown)="moveActive(1)"
+          (keydown.arrowUp)="moveActive(-1)"
+          (keydown.enter)="selectActive()"
+        />
+
+        <!-- Search Suggestions -->
+        <ul *ngIf="showSearchResults" class="search-results">
+          <li
+            *ngFor="let r of filteredResults; let i = index"
+            [class.active]="i === activeIndex"
+            (click)="navigateTo(r.route)"
+          >
+            <i [class]="r.icon"></i> {{ r.label }}
+            <span class="path">{{ r.parent }}</span>
+          </li>
+        </ul>
       </div>
 
+
       <div class="topbar-right">
-        <a href="#" class="help">Help</a>
-        <div class="profile">
-          <img src="https://via.placeholder.com/32" alt="User" />
+        <!-- USER MENU DROPDOWN -->
+        <div class="user-menu" (click)="toggleUserMenu()" (click)="$event.stopPropagation()" tabindex="0">
+          <img src="https://cdn-icons-png.flaticon.com/512/630/630453.png" class="user-icon" />
+
+          <!-- DROPDOWN -->
+          <div class="dropdown" *ngIf="showUserDropdown" (click)="$event.stopPropagation()">
+
+            <div class="user-info">
+              <h4>{{ user?.name }}</h4>
+              <p>{{ user?.company }}</p>
+            </div>
+
+            <hr />
+
+            <button class="dropdown-btn" (click)="navigateToSettings()">
+              <i class="fa fa-cog"></i> Settings
+            </button>
+
+            <button class="dropdown-btn logout" (click)="logout()">
+              <i class="fa fa-sign-out"></i> Logout
+            </button>
+
+          </div>
+
         </div>
       </div>
+
     </header>
 
     <main class="content">

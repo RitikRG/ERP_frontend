@@ -27,5 +27,9 @@ export class CustomerService {
         return this.http.post(`${this.apiUrl}/create?org_id=${org_id}`, data);
     }
 
+    getDueCustomers(org_id: string) {
+        return this.http.get(`${this.apiUrl}/${org_id}/due`);
+    }
+
 
 }

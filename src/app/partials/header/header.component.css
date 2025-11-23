@@ -153,10 +153,14 @@
 
 /* Topbar right */
 .topbar-right {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1rem;
+  overflow: visible !important; 
+  z-index: 2000;
 }
+
 
 .topbar-right .help {
   text-decoration: none;
@@ -201,4 +205,153 @@
 }
 .btn-primary:hover {
   background-color: #1d4ed8;
+}
+
+.search {
+  position: relative;
+  width: 280px;
+}
+
+.search input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-results {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 0;
+  z-index: 2000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  list-style: none;
+}
+
+.search-results li {
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.search-results li:hover,
+.search-results li.active {
+  background-color: #f0f4ff;
+}
+
+.search-results .path {
+  color: #777;
+  font-size: 12px;
+}
+
+/* USER MENU */
+
+.user-menu {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+}
+
+.user-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ddd;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.user-icon:hover {
+  transform: scale(1.05);
+}
+
+.dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 220px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 99999999;
+}
+
+.user-info {
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.user-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.dropdown-btn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dropdown-btn:hover {
+  background: #f3f3f3;
+}
+
+.logout {
+  color: #e53935;
+}
+
+.topbar {
+  overflow: visible !important;
+}
+
+.topbar-right {
+  position: relative;
+  overflow: visible !important;
+  z-index: 2000;
+}
+
+.user-menu {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 220px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 999999999 !important;
 }

@@ -17,6 +17,8 @@ import { AddSaleComponent } from './pages/sale/add-sale.component';
 import { SaleListComponent } from './pages/sale/saleList.component';
 import { CustomerListComponent } from './pages/customer/customer-list.component';
 import { AddCustomerComponent } from './pages/customer/add-customer.component';
+import { KhataBookComponent } from './pages/customer/khatabook.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -49,4 +51,9 @@ export const routes: Routes = [
   // Customer Paths
   { path: 'customers/list', component: CustomerListComponent, canActivate: [authGuard] },
   { path: 'customers/new', component: AddCustomerComponent, canActivate: [authGuard] },
+  { path: 'customers/dues', component: KhataBookComponent, canActivate: [authGuard] },
+  
+  // User Settings
+  { path: 'user/settings', component: SettingsComponent, canActivate: [authGuard] },
+  
 ];

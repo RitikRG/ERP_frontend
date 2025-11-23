@@ -1,0 +1,117 @@
+<app-header>
+
+<div class="box">
+  <div class="header-row">
+    <h2>KhataBook — Customer Due List</h2>
+    <input 
+        type="text" 
+        placeholder="Search customer..." 
+        [(ngModel)]="searchTerm"
+        (input)="search()"
+    />
+  </div>
+
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Mobile</th>
+        <th>Total Due</th>
+        <th>Call</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let c of filteredCustomers">
+        <td>{{ c.name }}</td>
+        <td>{{ c.mobile_number }}</td>
+        <td>{{ c.totalBalance | currency:'INR' }}</td>
+
+        <td>
+          <a [href]="'tel:' + c.mobile_number" class="btn-secondary call-link"><fa-icon [icon]="faPhone"></fa-icon> Call</a>
+        </td>
+
+        <td>
+          <button class="btn-secondary" (click)="openDetails(c)">View</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</app-header>
+
+
+<!-- DETAILS POPUP -->
+<div class="details-popup" *ngIf="showDetailsPopup">
+  <div class="details-box">
+
+    <h3>Customer Due Summary</h3>
+    <p><strong>Name:</strong> {{ selectedCustomer.name }}</p>
+    <p><strong>Mobile:</strong> {{ selectedCustomer.mobile_number }}</p>
+
+    <button class="btn-close" (click)="showDetailsPopup = false">×</button>
+
+    <hr/>
+
+    <h3>Pending Sales</h3>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Sale Ref</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Paid</th>
+          <th>Balance</th>
+          <th>Due Date</th>
+          <th>Add Payment</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let s of customerSales">
+          <td>{{ s.sale_ref }}</td>
+          <td>{{ s.date | date:'dd/MM/yyyy' }}</td>
+          <td>{{ s.final_amount | currency:'INR' }}</td>
+          <td>{{ s.paid_amount | currency:'INR' }}</td>
+          <td class="text-red">{{ s.balance_amount | currency:'INR' }}</td>
+          <td>{{ s.payment_due_date | date:'dd/MM/yyyy' }}</td>
+
+          <td>
+            <button class="btn-primary" (click)="openAddPayment(s)">Pay</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ADD PAYMENT POPUP -->
+<div class="payment-popup" *ngIf="showPaymentPopup">
+  <div class="payment-box">
+
+    <h3>Add Payment</h3>
+
+    <label>Amount</label>
+    <input type="number" [(ngModel)]="newPayment.amount">
+
+    <label>Method</label>
+    <select [(ngModel)]="newPayment.payment_method">
+      <option value="cash">Cash</option>
+      <option value="upi">UPI</option>
+      <option value="cheque">Cheque</option>
+      <option value="transfer">Bank Transfer</option>
+    </select>
+
+    <label *ngIf="newPayment.payment_method==='upi'">Transaction ID</label>
+    <input *ngIf="newPayment.payment_method==='upi'" type="text" [(ngModel)]="newPayment.transaction_id">
+
+    <div class="action-row">
+      <button class="btn-primary" (click)="savePayment()">Save</button>
+      <button class="btn-primary" (click)="collectPaymentUPI()">Collect UPI</button>
+      <button class="btn-cancel" (click)="showPaymentPopup = false">Cancel</button>
+    </div>
+  </div>
+</div>

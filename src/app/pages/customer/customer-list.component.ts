@@ -77,6 +77,7 @@ export class CustomerListComponent implements OnInit {
           this.toast.showSuccess("Customer updated");
           this.showEditPopup = false;
           this.fetchCustomers();
+          this.cdr.detectChanges();
         },
         error: err => this.toast.showError(err.error?.message)
       });
