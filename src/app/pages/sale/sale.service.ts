@@ -25,10 +25,10 @@ export class SaleService {
         return this.http.post(`${this.apiUrl}/org/${org_id}/sale/${saleId}/payment`, data);
     }
 
-
-    deleteSale(id: string) {
-        return this.http.delete(`${this.apiUrl}/sale/${id}`);
+    deleteSale(org_id: string, id: string) {
+        return this.http.delete(`${this.apiUrl}/org/${org_id}/sale/${id}`);
     }
+
 
     // Get all Sales
     getAllSales(org_id: string) {

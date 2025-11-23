@@ -1,0 +1,121 @@
+<app-header>
+
+<div class="box">
+  <div class="header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <h2>Customers</h2>
+    <div class="search-box">
+        <input type="text" placeholder="Search by name or mobile..."
+        [(ngModel)]="searchTerm">
+    </div>
+  </div>
+
+      
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Mobile</th>
+        <th>Total Purchase</th>
+        <th>Total Balance</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let c of filter()" (click)="openDetails(c)" class="clickable-row">
+        <td>{{ c.name || '-' }}</td>
+        <td>{{ c.mobile_number }}</td>
+        <td>{{ c.totalPurchase | currency:'INR' }}</td>
+        <td>{{ c.totalBalance | currency:'INR' }}</td>
+        <td>
+            <button class="btn-secondary" (click)="openEdit(c); $event.stopPropagation()">Edit</button>
+        </td>
+    </tr>
+
+    </tbody>
+  </table>
+
+</div>
+
+</app-header>
+
+<!-- Edit Popup -->
+<div class="popup" *ngIf="showEditPopup">
+  <div class="popup-box">
+    <h3>Edit Customer</h3>
+
+    <label>Name</label>
+    <input type="text" [(ngModel)]="newName">
+
+    <div class="actions">
+      <button class="btn-primary" (click)="saveCustomer()">Save</button>
+      <button class="btn-cancel" (click)="showEditPopup = false">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Details popup -->
+
+<!-- CUSTOMER DETAILS POPUP -->
+<div class="details-popup" *ngIf="showDetailsPopup">
+  <div class="details-box">
+
+    <div class="details-header">
+      <h3>Customer Summary</h3>
+      <button class="btn-close" (click)="showDetailsPopup = false">×</button>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <p class="label">Customer Name</p>
+        <h4>{{ selectedCustomerDetail?.name }}</h4>
+      </div>
+      <div class="summary-card">
+        <p class="label">Mobile</p>
+        <h4>{{ selectedCustomerDetail?.mobile_number }}</h4>
+      </div>
+      <div class="summary-card">
+        <p class="label">Total Purchase</p>
+        <h4>{{ customerSummary?.totalPurchase | currency:'INR' }}</h4>
+      </div>
+      <div class="summary-card">
+        <p class="label">Total Balance Due</p>
+        <h4 class="text-red">{{ customerSummary?.totalBalance | currency:'INR' }}</h4>
+      </div>
+      <div class="summary-card">
+        <p class="label">Total Orders</p>
+        <h4>{{ customerSummary?.totalSales }}</h4>
+      </div>
+    </div>
+
+    <hr />
+
+    <h3>Purchase History</h3>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Sale Ref</th>
+          <th>Date</th>
+          <th>Total Amount</th>
+          <th>Paid</th>
+          <th>Balance</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let s of customerSales">
+          <td>{{ s.sale_ref }}</td>
+          <td>{{ s.date | date:'dd/MM/yyyy' }}</td>
+          <td>{{ s.final_amount | currency:'INR' }}</td>
+          <td>{{ s.paid_amount | currency:'INR' }}</td>
+          <td>{{ s.balance_amount | currency:'INR' }}</td>
+          <td>{{ s.payment_status | titlecase }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

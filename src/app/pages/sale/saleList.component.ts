@@ -3,7 +3,7 @@ import { CommonModule, CurrencyPipe, DatePipe, NgIf, NgFor } from '@angular/comm
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPrint, faAdd } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faAdd, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
@@ -32,6 +32,7 @@ export class SaleListComponent implements OnInit {
 
   faPrint = faPrint;
   faAdd = faAdd;
+  faTrash = faTrash;
 
   currentOrg: any = null;
 
@@ -61,6 +62,12 @@ export class SaleListComponent implements OnInit {
     transaction_id: '',
     cheque_no: ''
   };
+
+  // Delete
+  showDeletePopup = false;
+  deleteSaleId: string | null = null;
+  deleteSaleRef: string = "";
+
 
   constructor(
     private saleService: SaleService,
@@ -382,5 +389,30 @@ export class SaleListComponent implements OnInit {
     const rzp = new Razorpay(options);
     rzp.open();
   }
+
+  // Delete functionality
+  confirmDelete(id: string) {
+    const sale = this.sales.find(s => s._id === id);
+
+    this.deleteSaleId = id;
+    this.deleteSaleRef = sale?.sale_ref || "this sale";
+    this.showDeletePopup = true;
+  }
+
+  deleteSaleNow() {
+    if (!this.deleteSaleId) return;
+    this.saleService.deleteSale(this.auth.currentUserValue?.org_id??"", this.deleteSaleId)
+      .subscribe({
+        next: () => {
+          this.toast.showSuccess("Sale deleted & stock restored!");
+          this.showDeletePopup = false;
+          this.fetchSales(); // refresh list
+        },
+        error: (err) => {
+          this.toast.showError(err.error?.message || "Failed to delete sale");
+        }
+      });
+  }
+
 
 }

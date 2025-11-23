@@ -73,8 +73,13 @@
           <td class="actions_td">
             <button class="btn-secondary"
                     (click)="addPayment(sale._id); $event.stopPropagation()">
-              <fa-icon [icon]="faAdd"></fa-icon> Add Payment
+              <fa-icon [icon]="faAdd"></fa-icon> Payment
             </button>
+            <button class="btn-delete"
+                    (click)="confirmDelete(sale._id); $event.stopPropagation()">
+                <fa-icon [icon]="faTrash"></fa-icon> Delete
+            </button>
+
           </td>
         </tr>
       </tbody>
@@ -329,5 +334,17 @@
       <button class="btn-primary" (click)="showPaymentPopup = false">Cancel</button>
     </div>
 
+  </div>
+</div>
+
+<!-- Confirm delete popup -->
+<div class="confirm-popup" *ngIf="showDeletePopup">
+  <div class="confirm-box">
+    <p>Are you sure you want to delete sale <strong>{{ deleteSaleRef }}</strong>?</p>
+
+    <div class="buttons">
+      <button class="btn-confirm" (click)="deleteSaleNow()">Yes</button>
+      <button class="btn-cancel" (click)="showDeletePopup = false">No</button>
+    </div>
   </div>
 </div>
