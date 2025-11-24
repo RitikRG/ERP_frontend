@@ -1,0 +1,109 @@
+<app-header>
+  <div class="dashboard-container">
+
+    <!-- LOADING & ERROR -->
+    <div *ngIf="loading" class="loading">Loading dashboard...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <ng-container *ngIf="!loading && !errorMessage && summary">
+
+      <!-- TOP SUMMARY CARDS -->
+      <div class="cards-grid">
+        <div class="card">
+          <h3>Sales</h3>
+          <p class="big">{{ summary.sales.totalAmount | currency:'INR' }}</p>
+          <p>Paid: {{ summary.sales.paid | currency:'INR' }}</p>
+          <p>Due: <span class="text-red">{{ summary.sales.balance | currency:'INR' }}</span></p>
+        </div>
+
+        <div class="card">
+          <h3>Purchase</h3>
+          <p class="big">{{ summary.purchases.totalAmount | currency:'INR' }}</p>
+          <p>Paid: {{ summary.purchases.paid | currency:'INR' }}</p>
+          <p>Due: <span class="text-red">{{ summary.purchases.balance | currency:'INR' }}</span></p>
+        </div>
+
+        <div class="card">
+          <h3>Sale Payments</h3>
+          <p>Done: {{ summary.salesPayments.doneAmount | currency:'INR' }}</p>
+          <p>Pending: <span class="text-red">{{ summary.salesPayments.dueAmount | currency:'INR' }}</span></p>
+        </div>
+
+        <div class="card">
+          <h3>Purchase Payments</h3>
+          <p>Done: {{ summary.purchasePayments.doneAmount | currency:'INR' }}</p>
+          <p>Pending: <span class="text-red">{{ summary.purchasePayments.dueAmount | currency:'INR' }}</span></p>
+        </div>
+
+        <div class="card">
+          <h3>Inventory</h3>
+          <p>Total Products: {{ summary.inventory.totalProducts }}</p>
+          <p>Total Qty: {{ summary.inventory.totalQuantity }}</p>
+        </div>
+
+        <div class="card">
+          <h3>Suppliers</h3>
+          <p class="big">{{ summary.suppliers.count }}</p>
+        </div>
+      </div>
+
+      <!-- CHARTS GRID -->
+      <div class="chart-grid">
+
+        <!-- DOUGHNUT: SALES VS PURCHASES -->
+        <div class="chart-card">
+          <h3>Sales vs Purchases</h3>
+          <canvas baseChart
+                  [data]="salesVsPurchaseData"
+                  [options]="doughnutOptions"
+                  chartType="doughnut">
+          </canvas>
+        </div>
+
+        <!-- HORIZONTAL BAR: SALES PAYMENT METHODS -->
+        <div class="chart-card">
+          <h3>Sales Payment Methods</h3>
+          <canvas baseChart
+                  [data]="salesMethodBarData"
+                  [options]="horizontalBarOptions"
+                  chartType="bar">
+          </canvas>
+        </div>
+
+        <!-- PIE: PURCHASE PAYMENT METHODS -->
+        <div class="chart-card">
+          <h3>Purchase Payment Methods</h3>
+          <canvas baseChart
+                  [data]="purchaseMethodPieData"
+                  [options]="pieOptions"
+                  chartType="pie">
+          </canvas>
+        </div>
+
+      </div>
+
+      <!-- PROJECTIONS -->
+      <div class="projections" *ngIf="projections">
+        <h2>Projections (Next 30 Days)</h2>
+
+        <div class="cards-grid small">
+          <div class="card">
+            <h3>Projected Sales</h3>
+            <p class="big">{{ projections.projectedSalesNext30Days | currency:'INR' }}</p>
+          </div>
+
+          <div class="card">
+            <h3>Projected Purchases</h3>
+            <p class="big">{{ projections.projectedPurchasesNext30Days | currency:'INR' }}</p>
+          </div>
+        </div>
+
+        <p class="projection-comment" *ngIf="projections.commentary">
+          {{ projections.commentary }}
+        </p>
+      </div>
+
+    </ng-container>
+
+  </div>
+</app-header>

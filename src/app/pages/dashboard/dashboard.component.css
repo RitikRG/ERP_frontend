@@ -1,0 +1,81 @@
+.dashboard-container {
+  padding: 1.5rem;
+}
+
+/* Summary Cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+.card .big {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.text-red {
+  color: #dc2626;
+}
+
+/* Chart Cards */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 20px;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+.chart-card h3 {
+  margin-bottom: 0.6rem;
+  font-size: 1.05rem;
+}
+
+/* Trend Charts */
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.5rem;
+  margin-top: 20px;
+}
+
+/* Projections */
+.projections {
+  margin-top: 2rem;
+}
+
+.projection-comment {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+/* Loader + Error */
+.loading, .error {
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.error {
+  color: #b91c1c;
+}

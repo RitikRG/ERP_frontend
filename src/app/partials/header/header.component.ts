@@ -23,7 +23,7 @@ export class HeaderComponent {
   sidebarOpen = true;
 
   menuItems: MenuItem[] = [
-    { label: 'Dashboard', icon: 'fa fa-home', route: '#' },
+    { label: 'Dashboard', icon: 'fa fa-home', route: '/dashboard' },
     {
       label: 'Sales', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
         { label: 'Add Sale', icon: 'fa fa-plus', route: '/sales/add-sale' },
