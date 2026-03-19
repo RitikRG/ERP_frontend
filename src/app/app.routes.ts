@@ -19,6 +19,7 @@ import { CustomerListComponent } from './pages/customer/customer-list.component'
 import { AddCustomerComponent } from './pages/customer/add-customer.component';
 import { KhataBookComponent } from './pages/customer/khatabook.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { SopSettingsComponent } from './pages/settings/sop-settings.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -55,5 +56,6 @@ export const routes: Routes = [
   
   // User Settings
   { path: 'user/settings', component: SettingsComponent, canActivate: [authGuard] },
+  { path: 'settings/sop', component: SopSettingsComponent, canActivate: [authGuard] },
   
 ];

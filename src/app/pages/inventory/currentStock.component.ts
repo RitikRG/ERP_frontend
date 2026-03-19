@@ -9,6 +9,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../services/toast.service';
 import { BarcodeScannerComponent } from '../../partials/barcode/barcode-scanner.component';
+import { environment } from '../../../enviornment/enviornment';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class CurrentStockComponent implements OnInit {
   // icons
   faEdit = faEdit;
   faTrash = faTrash;
+  readonly assetBaseUrl = environment.apiUrl.replace(/\/api$/, '');
 
   products: any[] = [];
   filteredProducts: any[] = [];
@@ -159,5 +161,17 @@ export class CurrentStockComponent implements OnInit {
 
   navigateToCreate() {
     this.router.navigate(['/product/new']);
+  }
+
+  getProductImageUrl(imagePath: string): string {
+    if (!imagePath) {
+      return '';
+    }
+
+    if (/^https?:\/\//i.test(imagePath)) {
+      return imagePath;
+    }
+
+    return `${this.assetBaseUrl}${imagePath}`;
   }
 }

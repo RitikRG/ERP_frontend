@@ -31,7 +31,8 @@
   </div>
 
 
-  <table *ngIf="!loading && errorMessage =='' && paginatedPurchases.length" class="product-table">
+  <div class="table-wrap" *ngIf="!loading && errorMessage =='' && paginatedPurchases.length">
+  <table class="product-table">
     <thead>
       <tr>
         <th>Ref</th>
@@ -82,6 +83,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <div class="pagination">
     <button
@@ -185,6 +187,7 @@
 
       <!-- Product Table -->
       <h4>Product Details</h4>
+      <div class="table-wrap">
       <table class="items-table">
         <thead>
           <tr>
@@ -205,6 +208,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <!-- Payment Summary -->
       <div class="payment-summary">
@@ -231,6 +235,7 @@
       <!-- Payment History Table -->
       <div class="payment-history" *ngIf="selectedPurchase.payments?.length">
         <h4>Payment History</h4>
+        <div class="table-wrap">
         <table class="items-table payments-table">
           <thead>
             <tr>
@@ -253,6 +258,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- If no payments -->
@@ -284,6 +290,7 @@
     <div *ngIf="selectedPurchaseForPayment.payments?.length">
       <h3>Existing Payments</h3>
 
+      <div class="table-wrap">
       <table class="items-table">
         <thead>
           <tr>
@@ -305,6 +312,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- No payments -->
@@ -315,7 +323,7 @@
     <hr />
 
     <!-- Add New Payment Form -->
-    <h3 style="margin-top: 10px;">Add New Payment</h3>
+    <h3 class="mt-sm">Add New Payment</h3>
 
     <div class="form-row">
       <label>Amount</label>

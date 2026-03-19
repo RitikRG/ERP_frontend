@@ -29,7 +29,8 @@
   </div>
 
 
-  <table *ngIf="!loading && errorMessage =='' && paginatedSuppliers.length" class="product-table">
+  <div class="table-wrap compact" *ngIf="!loading && errorMessage =='' && paginatedSuppliers.length">
+  <table class="product-table">
     <thead>
       <tr>
         <th>Name</th>
@@ -54,6 +55,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <div class="pagination">
     <button

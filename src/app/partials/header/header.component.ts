@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,44 +19,69 @@ interface MenuItem {
   styleUrls: ['./header.component.css'],
   imports: [CommonModule, FormsModule],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   sidebarOpen = true;
+  isCompactViewport = false;
 
   menuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'fa fa-home', route: '/dashboard' },
     {
-      label: 'Sales', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+      label: 'Sales',
+      icon: 'fa fa-box',
+      route: 'javascript:void(0)',
+      children: [
         { label: 'Add Sale', icon: 'fa fa-plus', route: '/sales/add-sale' },
         { label: 'Sales List', icon: 'fa fa-plus', route: '/sales/list' },
-      ]
+      ],
     },
     {
-      label: 'Inventory', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+      label: 'Inventory',
+      icon: 'fa fa-box',
+      route: 'javascript:void(0)',
+      children: [
         { label: 'Current Stock', icon: 'fa fa-plus', route: '/inventory/current-stock' },
         { label: 'Add Purchase', icon: 'fa fa-plus', route: '/inventory/add-purchase' },
         { label: 'Purchase List', icon: 'fa fa-list', route: '/inventory/list-purchase' },
-      ]
+      ],
     },
     {
-      label: 'Products', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+      label: 'Products',
+      icon: 'fa fa-box',
+      route: 'javascript:void(0)',
+      children: [
         { label: 'Add Product', icon: 'fa fa-plus', route: '/product/new' },
-        { label: 'Product List', icon: 'fa fa-list', route: '/product/list' }
-      ]
+        { label: 'Product List', icon: 'fa fa-list', route: '/product/list' },
+      ],
     },
     {
-      label: 'Supplier', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+      label: 'Supplier',
+      icon: 'fa fa-box',
+      route: 'javascript:void(0)',
+      children: [
         { label: 'Add Supplier', icon: 'fa fa-plus', route: '/supplier/new' },
-        { label: 'Suppliers List', icon: 'fa fa-plus', route: '/supplier/list' }
-      ]
+        { label: 'Suppliers List', icon: 'fa fa-plus', route: '/supplier/list' },
+      ],
     },
     {
-      label: 'Customers', icon: 'fa fa-box', route: 'javascript:void(0)', children: [
+      label: 'Customers',
+      icon: 'fa fa-box',
+      route: 'javascript:void(0)',
+      children: [
         { label: 'Add Customer', icon: 'fa fa-plus', route: '/customers/new' },
         { label: 'Customers List', icon: 'fa fa-plus', route: '/customers/list' },
         { label: 'Khatabook', icon: 'fa fa-plus', route: '/customers/dues' },
-      ]
+      ],
     },
-    { label: 'Share', icon: 'fa fa-share-alt', route: '#' }
+    { label: 'Share', icon: 'fa fa-share-alt', route: '#' },
+    {
+      label: 'Settings',
+      icon: 'fa fa-box',
+      route: 'javascript:void(0)',
+      children: [
+        { label: 'User Settings', icon: 'fa fa-plus', route: '/user/settings' },
+        { label: 'SOP Settings', icon: 'fa fa-plus', route: '/settings/sop' },
+      ],
+    },
   ];
 
   searchText: string = '';
@@ -68,32 +93,61 @@ export class HeaderComponent {
 
   user: any = {
     name: 'User',
-    company: 'Company'
+    company: 'Company',
   };
-  
-  
-  
-  constructor(private router: Router, private auth: AuthService, private cdr: ChangeDetectorRef) {
-    this.menuItems.forEach(item => {
+
+  private readonly documentClickHandler = () => {
+    if (this.showUserDropdown) {
+      this.showUserDropdown = false;
+      this.cdr.detectChanges();
+    }
+  };
+
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef,
+  ) {
+    this.menuItems.forEach((item) => {
       if (item.children) {
-        item.isOpen = item.children.some(child => this.router.url.startsWith(child.route || ''));
+        item.isOpen = item.children.some((child) => this.router.url.startsWith(child.route || ''));
       }
     });
   }
-  
+
   ngOnInit() {
+    this.syncViewportState(true);
+
     const u = this.auth.currentUserValue;
 
     this.user = {
-      name: u?.name || "User",
-      company: u?.org?.name || "Company"
+      name: u?.name || 'User',
+      company: u?.org?.name || 'Company',
     };
 
-    document.addEventListener("click", () => {
-      this.showUserDropdown = false;
-    });
+    document.addEventListener('click', this.documentClickHandler);
   }
 
+  ngOnDestroy() {
+    document.removeEventListener('click', this.documentClickHandler);
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.syncViewportState();
+  }
+
+  private syncViewportState(force = false) {
+    const compactViewport = window.innerWidth <= 1024;
+    const changed = compactViewport !== this.isCompactViewport;
+
+    this.isCompactViewport = compactViewport;
+
+    if (force || changed) {
+      this.sidebarOpen = !compactViewport;
+      this.cdr.detectChanges();
+    }
+  }
 
   toggleUserMenu() {
     this.showUserDropdown = !this.showUserDropdown;
@@ -103,6 +157,7 @@ export class HeaderComponent {
   navigateToSettings() {
     this.showUserDropdown = false;
     this.router.navigate(['/user/settings']);
+    this.closeSidebarOnCompactViewport();
   }
 
   logout() {
@@ -113,10 +168,40 @@ export class HeaderComponent {
 
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen;
+    this.cdr.detectChanges();
   }
 
   toggleSubMenu(item: MenuItem) {
     item.isOpen = !item.isOpen;
+    this.cdr.detectChanges();
+  }
+
+  handleMenuClick(item: MenuItem, event: Event) {
+    event.preventDefault();
+
+    if (item.children?.length) {
+      this.toggleSubMenu(item);
+      return;
+    }
+
+    if (item.route && item.route !== '#' && item.route !== 'javascript:void(0)') {
+      this.navigateTo(item.route);
+    }
+  }
+
+  handleChildClick(route: string | undefined, event: Event) {
+    event.preventDefault();
+
+    if (route) {
+      this.navigateTo(route);
+    }
+  }
+
+  closeSidebarOnCompactViewport() {
+    if (this.isCompactViewport && this.sidebarOpen) {
+      this.sidebarOpen = false;
+      this.cdr.detectChanges();
+    }
   }
 
   isChildActive(childRoute: string | undefined): boolean {
@@ -134,14 +219,14 @@ export class HeaderComponent {
     // Flatten menu
     const allItems: any[] = [];
 
-    this.menuItems.forEach(parent => {
+    this.menuItems.forEach((parent) => {
       if (parent.children) {
-        parent.children.forEach(child => {
+        parent.children.forEach((child) => {
           allItems.push({
             label: child.label,
             icon: child.icon,
             route: child.route,
-            parent: parent.label
+            parent: parent.label,
           });
         });
       } else {
@@ -149,15 +234,13 @@ export class HeaderComponent {
           label: parent.label,
           icon: parent.icon,
           route: parent.route,
-          parent: ''
+          parent: '',
         });
       }
     });
 
     // Filter
-    this.filteredResults = allItems.filter(item =>
-      item.label.toLowerCase().includes(term)
-    );
+    this.filteredResults = allItems.filter((item) => item.label.toLowerCase().includes(term));
 
     this.showSearchResults = this.filteredResults.length > 0;
     this.activeIndex = 0;
@@ -167,6 +250,7 @@ export class HeaderComponent {
     this.searchText = '';
     this.showSearchResults = false;
     this.router.navigate([route]);
+    this.closeSidebarOnCompactViewport();
   }
 
   moveActive(direction: number) {
@@ -183,5 +267,4 @@ export class HeaderComponent {
     const item = this.filteredResults[this.activeIndex];
     if (item) this.navigateTo(item.route);
   }
-
 }

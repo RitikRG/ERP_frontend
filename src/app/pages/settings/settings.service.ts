@@ -25,4 +25,13 @@ export class SettingsService {
   updateOrgSettings(org_id: string, data: any): Observable<any> {
     return this.http.put(`${environment.apiUrl}/settings/org/${org_id}`, data);
   }
+
+  // ---- SOP SETTINGS ----
+  getSopSettings(org_id: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/settings/sop/${org_id}`);
+  }
+
+  updateSopSettings(org_id: string, data: any): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/settings/sop/${org_id}`, data);
+  }
 }

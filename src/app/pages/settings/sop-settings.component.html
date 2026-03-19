@@ -1,0 +1,124 @@
+<app-header>
+  <div class="box">
+    <div class="header">
+      <div>
+        <h2>SOP Settings</h2>
+        <p class="page-note">Configure delivery, payment, shop timings, and order rules for your store.</p>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="status-text">Loading SOP settings...</div>
+
+    <div *ngIf="!loading" class="settings-layout">
+      <section class="settings-section">
+        <h3>Delivery</h3>
+        <div class="settings-grid">
+          <label class="toggle-row">
+            <span>Delivery Enabled</span>
+            <input type="checkbox" [(ngModel)]="sop.delivery.enabled" />
+          </label>
+
+          <div class="form-group">
+            <label>Minimum Order</label>
+            <input type="number" min="0" [(ngModel)]="sop.delivery.minimumOrder" />
+          </div>
+
+          <div class="form-group">
+            <label>Delivery Start Time</label>
+            <input type="time" [(ngModel)]="sop.delivery.hoursStart" />
+          </div>
+
+          <div class="form-group">
+            <label>Delivery End Time</label>
+            <input type="time" [(ngModel)]="sop.delivery.hoursEnd" />
+          </div>
+
+          <div class="form-group full-width">
+            <label>Delivery Days</label>
+            <input type="text" [(ngModel)]="sop.delivery.days" placeholder="Monday to Saturday" />
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Payment</h3>
+        <div class="settings-grid compact-grid">
+          <label class="toggle-row">
+            <span>Cash on Delivery</span>
+            <input type="checkbox" [(ngModel)]="sop.payment.cod" />
+          </label>
+
+          <label class="toggle-row">
+            <span>UPI Payments</span>
+            <input type="checkbox" [(ngModel)]="sop.payment.upi" />
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Shop</h3>
+        <div class="settings-grid">
+          <div class="form-group">
+            <label>Open Time</label>
+            <input type="time" [(ngModel)]="sop.shop.openTime" />
+          </div>
+
+          <div class="form-group">
+            <label>Close Time</label>
+            <input type="time" [(ngModel)]="sop.shop.closeTime" />
+          </div>
+
+          <div class="form-group">
+            <label>Weekly Off</label>
+            <input type="text" [(ngModel)]="sop.shop.weeklyOff" placeholder="Sunday" />
+          </div>
+
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" [(ngModel)]="sop.shop.contact" placeholder="Shop contact number" />
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Order Rules</h3>
+        <div class="settings-grid">
+          <label class="toggle-row">
+            <span>Allow Substitutions</span>
+            <input type="checkbox" [(ngModel)]="sop.rules.allowSubstitutions" />
+          </label>
+
+          <label class="toggle-row">
+            <span>Allow Partial Orders</span>
+            <input type="checkbox" [(ngModel)]="sop.rules.partialOrders" />
+          </label>
+
+          <div class="form-group">
+            <label>Maximum Items Per Order</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="sop.rules.maxItems"
+              placeholder="Leave empty for no limit"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label>Special Instructions</label>
+            <textarea
+              rows="4"
+              [(ngModel)]="sop.rules.specialInstructions"
+              placeholder="Add SOP notes or special handling instructions"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="submit-btn" [disabled]="saving" (click)="saveSopSettings()">
+          {{ saving ? 'Saving...' : 'Save SOP Settings' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</app-header>

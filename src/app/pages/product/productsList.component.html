@@ -32,7 +32,8 @@
   </div>
 
 
-  <table *ngIf="!loading && errorMessage =='' && paginatedProducts.length" class="product-table">
+  <div class="table-wrap" *ngIf="!loading && errorMessage =='' && paginatedProducts.length">
+  <table class="product-table">
     <thead>
       <tr>
         <th>Image</th>
@@ -50,7 +51,7 @@
         <td>
           <img
             *ngIf="product.img"
-            [src]="'https://192.168.191.16:4000' + product.img"
+            [src]="getProductImageUrl(product.img)"
             alt="{{ product.name }}"
             class="thumb"
           />
@@ -69,6 +70,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <div class="pagination">
     <button

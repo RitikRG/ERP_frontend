@@ -36,7 +36,7 @@
             </mat-form-field>
           </div>
 
-          <div style="grid-column: span 2;">
+          <div class="full-width">
               <!-- Product Autocomplete -->
               <div class="form-group">
                 <mat-form-field appearance="fill" class="w-full">
@@ -53,7 +53,7 @@
               </div>
     
               <!-- Product Detail Table -->
-                <div *ngIf="productsTable.length > 0" class="product-details">
+                <div *ngIf="productsTable.length > 0" class="product-details table-wrap">
                     <table>
                         <thead>
                             <tr>
@@ -75,7 +75,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="2" style="text-align: right;">Totals:</th>
+                                <th colspan="2" class="text-right">Totals:</th>
                                 <th>{{ getTableTotals().totalQty }}</th>
                                 <th>{{ getTableTotals().totalAmount | currency:'INR' }}</th>
                                 <th></th>
@@ -86,7 +86,7 @@
     
     
               <!-- Items Array -->
-              <div formArrayName="items" style="display: none;">
+              <div formArrayName="items" hidden>
                 <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="item-row">
                   <label>Product ID:</label>
                   <input formControlName="product_id" placeholder="Product ID" />

@@ -30,7 +30,8 @@
       </div>
     </div>
 
-    <table *ngIf="!loading && errorMessage == '' && paginatedSales.length" class="product-table">
+    <div class="table-wrap" *ngIf="!loading && errorMessage == '' && paginatedSales.length">
+    <table class="product-table">
       <thead>
         <tr>
           <th>Ref</th>
@@ -84,6 +85,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
 
     <div class="pagination">
       <button
@@ -150,6 +152,7 @@
 
       <!-- Product Table -->
       <h4>Product Details</h4>
+      <div class="table-wrap">
       <table class="items-table">
         <thead>
           <tr>
@@ -170,6 +173,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <!-- Payment Summary -->
       <div class="payment-summary">
@@ -214,6 +218,7 @@
       <!-- Payment History -->
       <div class="payment-history" *ngIf="selectedSale.payments?.length">
         <h4>Payment History</h4>
+        <div class="table-wrap">
         <table class="items-table payments-table">
           <thead>
             <tr>
@@ -234,6 +239,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <div class="payment-history empty" *ngIf="!selectedSale.payments?.length">
@@ -266,6 +272,7 @@
     <div *ngIf="selectedSaleForPayment.payments?.length">
       <h3>Existing Payments</h3>
 
+      <div class="table-wrap">
       <table class="items-table">
         <thead>
           <tr>
@@ -287,6 +294,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- No payments -->
@@ -297,7 +305,7 @@
     <hr />
 
     <!-- Add New Payment Form -->
-    <h3 style="margin-top: 10px;">Add New Payment</h3>
+    <h3 class="mt-sm">Add New Payment</h3>
 
     <div class="form-row">
       <label>Amount</label>

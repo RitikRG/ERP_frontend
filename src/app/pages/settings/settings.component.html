@@ -1,45 +1,68 @@
 <app-header>
-<div class="settings-container">
+  <div class="settings-container">
+    <div class="header">
+      <div>
+        <h2>Settings</h2>
+        <p class="page-note">Manage your profile and organisation details from one place.</p>
+      </div>
+    </div>
 
-  <h2>Settings</h2>
+    <div class="settings-layout">
+      <section class="settings-section">
+        <h3>User Settings</h3>
 
-  <!-- USER SETTINGS -->
-  <section class="settings-section">
-    <h3>User Settings</h3>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" [(ngModel)]="user.name" />
+        </div>
 
-    <label>Name</label>
-    <input type="text" [(ngModel)]="user.name">
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" [(ngModel)]="user.phone" />
+        </div>
 
-    <label>Phone Number</label>
-    <input type="text" [(ngModel)]="user.phone">
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" [(ngModel)]="user.password" />
+        </div>
 
-    <label>New Password</label>
-    <input type="password" [(ngModel)]="user.password">
+        <div class="form-actions">
+          <button class="btn-primary" (click)="saveUserSettings()">Save User Settings</button>
+        </div>
+      </section>
 
-    <button class="btn-primary" (click)="saveUserSettings()">Save User Settings</button>
-  </section>
+      <section class="settings-section">
+        <h3>Organisation Settings</h3>
 
-  <!-- ORG SETTINGS -->
-  <section class="settings-section">
-    <h3>Organisation Settings</h3>
+        <div class="form-group">
+          <label>Organisation Name</label>
+          <input type="text" [(ngModel)]="org.name" />
+        </div>
 
-    <label>Organisation Name</label>
-    <input type="text" [(ngModel)]="org.name">
+        <div class="form-group">
+          <label>GST Number</label>
+          <input type="text" [(ngModel)]="org.gst" />
+        </div>
 
-    <label>GST Number</label>
-    <input type="text" [(ngModel)]="org.gst">
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" [(ngModel)]="org.phone" />
+        </div>
 
-    <label>Phone Number</label>
-    <input type="text" [(ngModel)]="org.phone">
+        <div class="form-group">
+          <label>Address</label>
+          <textarea rows="3" [(ngModel)]="org.address"></textarea>
+        </div>
 
-    <label>Address</label>
-    <textarea rows="3" [(ngModel)]="org.address"></textarea>
+        <div class="form-group">
+          <label>Razorpay Key</label>
+          <input type="text" [(ngModel)]="org.razorpay_key" />
+        </div>
 
-    <label>Razorpay Key</label>
-    <input type="text" [(ngModel)]="org.razorpay_key">
-
-    <button class="btn-primary" (click)="saveOrgSettings()">Save Organisation Settings</button>
-  </section>
-
-</div>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="saveOrgSettings()">Save Organisation Settings</button>
+        </div>
+      </section>
+    </div>
+  </div>
 </app-header>
