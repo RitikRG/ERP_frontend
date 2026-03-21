@@ -15,6 +15,7 @@ import { PurchaseFormComponent } from './pages/inventory/purchase-form.component
 import { PurchaseListComponent } from './pages/inventory/purchaseList.component';
 import { AddSaleComponent } from './pages/sale/add-sale.component';
 import { SaleListComponent } from './pages/sale/saleList.component';
+import { OnlineOrderListComponent } from './pages/online-orders/online-order-list.component';
 import { CustomerListComponent } from './pages/customer/customer-list.component';
 import { AddCustomerComponent } from './pages/customer/add-customer.component';
 import { KhataBookComponent } from './pages/customer/khatabook.component';
@@ -48,6 +49,7 @@ export const routes: Routes = [
   // Sale paths
   { path: 'sales/add-sale', component: AddSaleComponent, canActivate: [authGuard] },
   { path: 'sales/list', component: SaleListComponent, canActivate: [authGuard] },
+  { path: 'sales/online-orders', component: OnlineOrderListComponent, canActivate: [authGuard] },
   
   // Customer Paths
   { path: 'customers/list', component: CustomerListComponent, canActivate: [authGuard] },

@@ -32,6 +32,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       children: [
         { label: 'Add Sale', icon: 'fa fa-plus', route: '/sales/add-sale' },
         { label: 'Sales List', icon: 'fa fa-plus', route: '/sales/list' },
+        { label: 'Online Orders', icon: 'fa fa-list', route: '/sales/online-orders' },
       ],
     },
     {

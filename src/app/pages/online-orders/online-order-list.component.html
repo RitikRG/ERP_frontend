@@ -1,0 +1,176 @@
+<app-header>
+  <div class="box">
+    <div class="header-row">
+      <div>
+        <h2>Online Orders</h2>
+        <p class="page-note">Orders received through the online ordering flow.</p>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading">Loading online orders...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <div class="table-controls">
+      <div class="left">
+        <label>Show:</label>
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+        </select>
+        <span>entries</span>
+      </div>
+
+      <div class="right">
+        <div class="input_group">
+          <input
+            type="text"
+            placeholder="Search by order ID, customer number, or status..."
+            [(ngModel)]="searchTerm"
+            (input)="filterOrders()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap" *ngIf="!loading && !errorMessage && paginatedOrders.length">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Customer Number</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="let order of paginatedOrders"
+            (click)="openOrderDetails(order)"
+            class="clickable-row"
+          >
+            <td [title]="order._id">{{ getShortOrderId(order._id) }}</td>
+            <td>{{ order.createdAt | date: 'dd/MM/yyyy hh:mm a' }}</td>
+            <td>{{ order.customerNumber }}</td>
+            <td>{{ getItemCount(order) }}</td>
+            <td>{{ order.total | currency:'INR' }}</td>
+            <td>{{ formatPaymentMethod(order.paymentMethod) }}</td>
+            <td>{{ order.status | titlecase }}</td>
+            <td>{{ order.notes || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        class="btn"
+        [disabled]="page === 1"
+        (click)="page = page - 1; updatePaginatedOrders()"
+      >
+        Prev
+      </button>
+
+      <span>Page {{ page }} of {{ totalPages() }}</span>
+
+      <button
+        class="btn"
+        [disabled]="page === totalPages()"
+        (click)="page = page + 1; updatePaginatedOrders()"
+      >
+        Next
+      </button>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && !onlineOrders.length" class="empty">
+      No online orders found.
+    </div>
+  </div>
+</app-header>
+
+<div class="details-popup" *ngIf="showDetailsPopup && selectedOrder">
+  <div class="details-box a4-layout light-shadow">
+    <div class="details-header">
+      <h2>Online Order Details</h2>
+      <button class="btn-close" (click)="closeOrderDetails()">×</button>
+    </div>
+
+    <div class="details-content">
+      <div class="invoice-header">
+        <div class="left">
+          <h3>{{ currentOrg?.name }}</h3>
+          <p><strong>GST:</strong> {{ currentOrg?.gst || 'N/A' }}</p>
+          <p><strong>Phone:</strong> {{ currentOrg?.phone || 'N/A' }}</p>
+          <p><strong>Address:</strong> {{ currentOrg?.address || 'N/A' }}</p>
+        </div>
+
+        <div class="right">
+          <h3>Customer Details</h3>
+          <p><strong>Customer Number:</strong> {{ selectedOrder.customerNumber }}</p>
+          <p><strong>Payment Method:</strong> {{ formatPaymentMethod(selectedOrder.paymentMethod) }}</p>
+          <p><strong>Status:</strong> {{ selectedOrder.status | titlecase }}</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="sale-info">
+        <p><strong>Order ID:</strong> {{ selectedOrder._id }}</p>
+        <p><strong>Created At:</strong> {{ selectedOrder.createdAt | date:'dd/MM/yyyy hh:mm a' }}</p>
+        <p><strong>Updated At:</strong> {{ selectedOrder.updatedAt | date:'dd/MM/yyyy hh:mm a' }}</p>
+        <p><strong>Notes:</strong> {{ selectedOrder.notes || 'No special instructions provided.' }}</p>
+      </div>
+
+      <h4>Order Items</h4>
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Code</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of selectedOrder.items">
+              <td>{{ item.productName || item.productId?.name || 'N/A' }}</td>
+              <td>{{ item.productId?.p_code || '—' }}</td>
+              <td>{{ item.price | currency:'INR' }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price * item.quantity | currency:'INR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="payment-summary">
+        <div class="summary-left">
+          <p><strong>Status:</strong> {{ selectedOrder.status | titlecase }}</p>
+          <p><strong>Total Units:</strong> {{ getItemCount(selectedOrder) }}</p>
+        </div>
+
+        <div class="summary-right">
+          <table>
+            <tr>
+              <th>Items:</th>
+              <td><strong>{{ selectedOrder.items?.length || 0 }}</strong></td>
+            </tr>
+            <tr>
+              <th>Total:</th>
+              <td><strong>{{ selectedOrder.total | currency:'INR' }}</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="details-actions">
+      <button class="btn-primary" (click)="closeOrderDetails()">Close</button>
+    </div>
+  </div>
+</div>
