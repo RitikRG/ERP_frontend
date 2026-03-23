@@ -14,6 +14,14 @@ import { OnlineOrderService } from './online-order.service';
 })
 export class OnlineOrderListComponent implements OnInit {
   currentOrg: any = null;
+  readonly orderStatuses = [
+    'pending',
+    'in-delivery',
+    'ready-for-pickup',
+    'fulfilled',
+    'cancelled',
+  ];
+  readonly fulfillmentPaymentStatuses = ['unpaid', 'partial', 'paid'];
 
   onlineOrders: any[] = [];
   filteredOrders: any[] = [];
@@ -28,7 +36,17 @@ export class OnlineOrderListComponent implements OnInit {
   pageSizes = [5, 10, 25, 50];
 
   selectedOrder: any = null;
+  selectedStatus = 'pending';
   showDetailsPopup = false;
+  statusUpdateInProgress = false;
+  statusActionMessage = '';
+  fulfillmentPayment: any = {
+    paymentStatus: 'unpaid',
+    amount: null,
+    payment_method: 'cash',
+    transaction_id: '',
+    cheque_no: '',
+  };
 
   constructor(
     private onlineOrderService: OnlineOrderService,
@@ -108,12 +126,19 @@ export class OnlineOrderListComponent implements OnInit {
 
   openOrderDetails(order: any) {
     this.selectedOrder = order;
+    this.selectedStatus = order?.status || 'pending';
+    this.resetFulfillmentPayment(order);
+    this.statusActionMessage = '';
     this.showDetailsPopup = true;
   }
 
   closeOrderDetails() {
     this.showDetailsPopup = false;
     this.selectedOrder = null;
+    this.selectedStatus = 'pending';
+    this.resetFulfillmentPayment(null);
+    this.statusActionMessage = '';
+    this.statusUpdateInProgress = false;
   }
 
   getShortOrderId(orderId: string) {
@@ -132,5 +157,117 @@ export class OnlineOrderListComponent implements OnInit {
     if (paymentMethod.toLowerCase() === 'upi') return 'UPI';
 
     return paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).toLowerCase();
+  }
+
+  formatStatus(status: string) {
+    if (!status) return 'Unknown';
+    return status
+      .split('-')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  }
+
+  resetFulfillmentPayment(order: any) {
+    const remainingBalance = Number(order?.saleId?.balance_amount ?? order?.total ?? 0);
+    const paymentStatus = order?.saleId?.payment_status || 'unpaid';
+
+    this.fulfillmentPayment = {
+      paymentStatus,
+      amount: paymentStatus === 'paid' ? remainingBalance : null,
+      payment_method: 'cash',
+      transaction_id: '',
+      cheque_no: '',
+    };
+  }
+
+  onSelectedStatusChange() {
+    if (this.selectedStatus === 'fulfilled') {
+      this.resetFulfillmentPayment(this.selectedOrder);
+    }
+  }
+
+  onFulfillmentPaymentStatusChange() {
+    if (this.fulfillmentPayment.paymentStatus === 'paid') {
+      this.fulfillmentPayment.amount = this.getRemainingBalance();
+      return;
+    }
+
+    if (this.fulfillmentPayment.paymentStatus === 'unpaid') {
+      this.fulfillmentPayment.amount = null;
+      this.fulfillmentPayment.transaction_id = '';
+      this.fulfillmentPayment.cheque_no = '';
+    } else {
+      this.fulfillmentPayment.amount = null;
+    }
+  }
+
+  getRemainingBalance() {
+    return Number(this.selectedOrder?.saleId?.balance_amount ?? this.selectedOrder?.total ?? 0);
+  }
+
+  requiresPaymentEntry() {
+    return this.fulfillmentPayment.paymentStatus === 'paid' || this.fulfillmentPayment.paymentStatus === 'partial';
+  }
+
+  updateSelectedOrderStatus() {
+    const orgId = this.auth.currentUserValue?.org_id;
+    const orderId = this.selectedOrder?._id;
+
+    if (!orgId || !orderId || !this.selectedStatus) {
+      this.statusActionMessage = 'Unable to update order status.';
+      return;
+    }
+
+    const payload: any = {
+      status: this.selectedStatus,
+    };
+
+    if (this.selectedStatus === 'fulfilled') {
+      if (!this.fulfillmentPayment.paymentStatus) {
+        this.statusActionMessage = 'Select the payment status before fulfilling the order.';
+        return;
+      }
+
+      if (this.requiresPaymentEntry()) {
+        const amount = Number(this.fulfillmentPayment.amount);
+
+        if (!amount || amount <= 0) {
+          this.statusActionMessage = 'Enter a valid payment amount.';
+          return;
+        }
+      }
+
+      payload.payment = { ...this.fulfillmentPayment };
+    }
+
+    this.statusUpdateInProgress = true;
+    this.statusActionMessage = '';
+
+    this.onlineOrderService
+      .updateOnlineOrderStatus(orgId, orderId, payload)
+      .subscribe({
+        next: (res: any) => {
+          const updatedOrder = res.order;
+
+          this.onlineOrders = this.onlineOrders.map((order) =>
+            order._id === updatedOrder._id ? updatedOrder : order
+          );
+          this.filterOrders();
+          this.selectedOrder = updatedOrder;
+          this.selectedStatus = updatedOrder.status;
+          this.resetFulfillmentPayment(updatedOrder);
+          this.statusActionMessage = res.saleCreated
+            ? 'Order status updated and sale created.'
+            : 'Order status updated successfully.';
+          this.statusUpdateInProgress = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error updating online order status:', err);
+          this.statusActionMessage =
+            err.error?.message || 'Failed to update order status.';
+          this.statusUpdateInProgress = false;
+        },
+      });
   }
 }

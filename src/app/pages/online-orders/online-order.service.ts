@@ -13,4 +13,8 @@ export class OnlineOrderService {
   getAllOnlineOrders(orgId: string) {
     return this.http.get(`${this.apiUrl}/${orgId}`);
   }
+
+  updateOnlineOrderStatus(orgId: string, orderId: string, payload: any) {
+    return this.http.put(`${this.apiUrl}/${orgId}/${orderId}/status`, payload);
+  }
 }

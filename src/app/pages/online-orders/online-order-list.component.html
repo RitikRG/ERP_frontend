@@ -58,7 +58,7 @@
             <td>{{ getItemCount(order) }}</td>
             <td>{{ order.total | currency:'INR' }}</td>
             <td>{{ formatPaymentMethod(order.paymentMethod) }}</td>
-            <td>{{ order.status | titlecase }}</td>
+            <td>{{ formatStatus(order.status) }}</td>
             <td>{{ order.notes || '—' }}</td>
           </tr>
         </tbody>
@@ -111,7 +111,7 @@
           <h3>Customer Details</h3>
           <p><strong>Customer Number:</strong> {{ selectedOrder.customerNumber }}</p>
           <p><strong>Payment Method:</strong> {{ formatPaymentMethod(selectedOrder.paymentMethod) }}</p>
-          <p><strong>Status:</strong> {{ selectedOrder.status | titlecase }}</p>
+          <p><strong>Status:</strong> {{ formatStatus(selectedOrder.status) }}</p>
         </div>
       </div>
 
@@ -121,7 +121,10 @@
         <p><strong>Order ID:</strong> {{ selectedOrder._id }}</p>
         <p><strong>Created At:</strong> {{ selectedOrder.createdAt | date:'dd/MM/yyyy hh:mm a' }}</p>
         <p><strong>Updated At:</strong> {{ selectedOrder.updatedAt | date:'dd/MM/yyyy hh:mm a' }}</p>
+        <p><strong>Delivery Address:</strong> {{ selectedOrder.deliveryAddress || 'Pickup order' }}</p>
         <p><strong>Notes:</strong> {{ selectedOrder.notes || 'No special instructions provided.' }}</p>
+        <p *ngIf="selectedOrder.saleId?.sale_ref"><strong>Linked Sale:</strong> {{ selectedOrder.saleId.sale_ref }}</p>
+        <p *ngIf="selectedOrder.saleId"><strong>Sale Payment Status:</strong> {{ selectedOrder.saleId.payment_status | titlecase }}</p>
       </div>
 
       <h4>Order Items</h4>
@@ -150,7 +153,7 @@
 
       <div class="payment-summary">
         <div class="summary-left">
-          <p><strong>Status:</strong> {{ selectedOrder.status | titlecase }}</p>
+          <p><strong>Status:</strong> {{ formatStatus(selectedOrder.status) }}</p>
           <p><strong>Total Units:</strong> {{ getItemCount(selectedOrder) }}</p>
         </div>
 
@@ -170,7 +173,87 @@
     </div>
 
     <div class="details-actions">
+      <label for="order-status"><strong>Status</strong></label>
+      <select
+        id="order-status"
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="onSelectedStatusChange()"
+        [disabled]="statusUpdateInProgress"
+      >
+        <option *ngFor="let status of orderStatuses" [value]="status">
+          {{ formatStatus(status) }}
+        </option>
+      </select>
+      <div *ngIf="selectedStatus === 'fulfilled'">
+        <label for="payment-status"><strong>Payment Status</strong></label>
+        <select
+          id="payment-status"
+          [(ngModel)]="fulfillmentPayment.paymentStatus"
+          (ngModelChange)="onFulfillmentPaymentStatusChange()"
+          [disabled]="statusUpdateInProgress"
+        >
+          <option *ngFor="let paymentStatus of fulfillmentPaymentStatuses" [value]="paymentStatus">
+            {{ paymentStatus | titlecase }}
+          </option>
+        </select>
+      </div>
+      <div *ngIf="selectedStatus === 'fulfilled'">
+        <p><strong>Remaining Balance:</strong> {{ getRemainingBalance() | currency:'INR' }}</p>
+      </div>
+      <div *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry()">
+        <label for="payment-amount"><strong>Payment Amount</strong></label>
+        <input
+          id="payment-amount"
+          type="number"
+          [(ngModel)]="fulfillmentPayment.amount"
+          [disabled]="statusUpdateInProgress || fulfillmentPayment.paymentStatus === 'paid'"
+        />
+      </div>
+      <div *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry()">
+        <label for="payment-method"><strong>Payment Method</strong></label>
+        <select
+          id="payment-method"
+          [(ngModel)]="fulfillmentPayment.payment_method"
+          [disabled]="statusUpdateInProgress"
+        >
+          <option value="cash">Cash</option>
+          <option value="upi">UPI</option>
+          <option value="cheque">Cheque</option>
+          <option value="transfer">Transfer</option>
+          <option value="others">Others</option>
+        </select>
+      </div>
+      <div
+        *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry() && ['upi', 'transfer'].includes(fulfillmentPayment.payment_method)"
+      >
+        <label for="transaction-id"><strong>Transaction ID</strong></label>
+        <input
+          id="transaction-id"
+          type="text"
+          [(ngModel)]="fulfillmentPayment.transaction_id"
+          [disabled]="statusUpdateInProgress"
+        />
+      </div>
+      <div
+        *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry() && fulfillmentPayment.payment_method === 'cheque'"
+      >
+        <label for="cheque-no"><strong>Cheque No</strong></label>
+        <input
+          id="cheque-no"
+          type="text"
+          [(ngModel)]="fulfillmentPayment.cheque_no"
+          [disabled]="statusUpdateInProgress"
+        />
+      </div>
+      <button
+        class="btn-primary"
+        (click)="updateSelectedOrderStatus()"
+        [disabled]="statusUpdateInProgress || selectedStatus === selectedOrder.status"
+      >
+        {{ statusUpdateInProgress ? 'Updating...' : 'Update Status' }}
+      </button>
       <button class="btn-primary" (click)="closeOrderDetails()">Close</button>
     </div>
+    <p *ngIf="statusActionMessage" class="page-note">{{ statusActionMessage }}</p>
   </div>
 </div>
