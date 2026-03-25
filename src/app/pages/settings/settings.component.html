@@ -55,8 +55,32 @@
         </div>
 
         <div class="form-group">
-          <label>Razorpay Key</label>
+          <label>Razorpay Key ID</label>
           <input type="text" [(ngModel)]="org.razorpay_key" />
+        </div>
+
+        <div class="form-group">
+          <label>Razorpay Secret</label>
+          <input
+            type="password"
+            [(ngModel)]="org.razorpay_secret"
+            placeholder="Enter a new secret to update"
+          />
+          <small class="page-note">
+            Current status: {{ org.has_razorpay_secret ? 'Configured' : 'Not configured' }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Razorpay Webhook Secret</label>
+          <input
+            type="password"
+            [(ngModel)]="org.razorpay_webhook_secret"
+            placeholder="Enter a new webhook secret to update"
+          />
+          <small class="page-note">
+            Current status: {{ org.has_razorpay_webhook_secret ? 'Configured' : 'Not configured' }}
+          </small>
         </div>
 
         <div class="form-actions">

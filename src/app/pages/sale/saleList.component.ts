@@ -342,6 +342,7 @@ export class SaleListComponent implements OnInit {
     if (!this.selectedSaleForPayment) return;
 
     const sale = this.selectedSaleForPayment;
+    const razorpayKey = this.auth.currentUserValue?.org?.razorpay_key || "";
 
     let amountToPay = Number(this.newPayment.amount || 0);
 
@@ -350,11 +351,16 @@ export class SaleListComponent implements OnInit {
       return;
     }
 
+    if (!razorpayKey) {
+      this.toast.showError("Razorpay key is not configured for this organisation.");
+      return;
+    }
+
     const options = {
-      key: "rzp_test_Ri763pD7uWDKlT",
+      key: razorpayKey,
       amount: Math.round(amountToPay * 100), // convert to paisa
       currency: "INR",
-      name: "Your Business Name",
+      name: this.currentOrg?.name || "Your Business Name",
       description: "Sale Payment",
       theme: { color: "#3f51b5" },
 

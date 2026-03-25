@@ -41,6 +41,7 @@
             <th>Items</th>
             <th>Total</th>
             <th>Payment Method</th>
+            <th>UPI Status</th>
             <th>Status</th>
             <th>Notes</th>
           </tr>
@@ -58,8 +59,9 @@
             <td>{{ getItemCount(order) }}</td>
             <td>{{ order.total | currency:'INR' }}</td>
             <td>{{ formatPaymentMethod(order.paymentMethod) }}</td>
+            <td>{{ formatStatus(getOnlinePaymentStatus(order)) }}</td>
             <td>{{ formatStatus(order.status) }}</td>
-            <td>{{ order.notes || '—' }}</td>
+            <td>{{ order.notes || '-' }}</td>
           </tr>
         </tbody>
       </table>
@@ -95,7 +97,7 @@
   <div class="details-box a4-layout light-shadow">
     <div class="details-header">
       <h2>Online Order Details</h2>
-      <button class="btn-close" (click)="closeOrderDetails()">×</button>
+      <button class="btn-close" (click)="closeOrderDetails()">x</button>
     </div>
 
     <div class="details-content">
@@ -123,6 +125,10 @@
         <p><strong>Updated At:</strong> {{ selectedOrder.updatedAt | date:'dd/MM/yyyy hh:mm a' }}</p>
         <p><strong>Delivery Address:</strong> {{ selectedOrder.deliveryAddress || 'Pickup order' }}</p>
         <p><strong>Notes:</strong> {{ selectedOrder.notes || 'No special instructions provided.' }}</p>
+        <p *ngIf="selectedOrder.paymentMethod === 'upi'"><strong>UPI Status:</strong> {{ formatStatus(getOnlinePaymentStatus(selectedOrder)) }}</p>
+        <p *ngIf="selectedOrder.onlinePayment?.shortUrl"><strong>Payment Link:</strong> {{ selectedOrder.onlinePayment.shortUrl }}</p>
+        <p *ngIf="selectedOrder.onlinePayment?.paidAt"><strong>Paid At:</strong> {{ selectedOrder.onlinePayment.paidAt | date:'dd/MM/yyyy hh:mm a' }}</p>
+        <p *ngIf="selectedOrder.onlinePayment?.paymentId"><strong>Transaction ID:</strong> {{ selectedOrder.onlinePayment.paymentId }}</p>
         <p *ngIf="selectedOrder.saleId?.sale_ref"><strong>Linked Sale:</strong> {{ selectedOrder.saleId.sale_ref }}</p>
         <p *ngIf="selectedOrder.saleId"><strong>Sale Payment Status:</strong> {{ selectedOrder.saleId.payment_status | titlecase }}</p>
       </div>
@@ -142,7 +148,7 @@
           <tbody>
             <tr *ngFor="let item of selectedOrder.items">
               <td>{{ item.productName || item.productId?.name || 'N/A' }}</td>
-              <td>{{ item.productId?.p_code || '—' }}</td>
+              <td>{{ item.productId?.p_code || '-' }}</td>
               <td>{{ item.price | currency:'INR' }}</td>
               <td>{{ item.quantity }}</td>
               <td>{{ item.price * item.quantity | currency:'INR' }}</td>
@@ -184,7 +190,8 @@
           {{ formatStatus(status) }}
         </option>
       </select>
-      <div *ngIf="selectedStatus === 'fulfilled'">
+
+      <div *ngIf="selectedStatus === 'fulfilled' && !hasSettledOnlinePayment(selectedOrder)">
         <label for="payment-status"><strong>Payment Status</strong></label>
         <select
           id="payment-status"
@@ -197,9 +204,15 @@
           </option>
         </select>
       </div>
+
+      <div *ngIf="selectedStatus === 'fulfilled' && hasSettledOnlinePayment(selectedOrder)">
+        <p><strong>Payment Status:</strong> Paid online via UPI link</p>
+      </div>
+
       <div *ngIf="selectedStatus === 'fulfilled'">
         <p><strong>Remaining Balance:</strong> {{ getRemainingBalance() | currency:'INR' }}</p>
       </div>
+
       <div *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry()">
         <label for="payment-amount"><strong>Payment Amount</strong></label>
         <input
@@ -209,6 +222,7 @@
           [disabled]="statusUpdateInProgress || fulfillmentPayment.paymentStatus === 'paid'"
         />
       </div>
+
       <div *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry()">
         <label for="payment-method"><strong>Payment Method</strong></label>
         <select
@@ -223,6 +237,7 @@
           <option value="others">Others</option>
         </select>
       </div>
+
       <div
         *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry() && ['upi', 'transfer'].includes(fulfillmentPayment.payment_method)"
       >
@@ -234,6 +249,7 @@
           [disabled]="statusUpdateInProgress"
         />
       </div>
+
       <div
         *ngIf="selectedStatus === 'fulfilled' && requiresPaymentEntry() && fulfillmentPayment.payment_method === 'cheque'"
       >
@@ -245,6 +261,7 @@
           [disabled]="statusUpdateInProgress"
         />
       </div>
+
       <button
         class="btn-primary"
         (click)="updateSelectedOrderStatus()"

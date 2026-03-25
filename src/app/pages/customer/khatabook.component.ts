@@ -119,6 +119,7 @@ export class KhataBookComponent implements OnInit {
 
   collectPaymentUPI() {
     const sale = this.selectedSaleForPayment;
+    const razorpayKey = this.auth.currentUserValue?.org?.razorpay_key || "";
     let amount = Number(this.newPayment.amount || 0);
 
     if (!amount || amount <= 0) {
@@ -126,11 +127,16 @@ export class KhataBookComponent implements OnInit {
       return;
     }
 
+    if (!razorpayKey) {
+      this.toast.showError("Razorpay key is not configured for this organisation.");
+      return;
+    }
+
     const options = {
-      key: "rzp_test_Ri763pD7uWDKlT",
+      key: razorpayKey,
       amount: Math.round(amount * 100),
       currency: "INR",
-      name: "Your Business",
+      name: this.auth.currentUserValue?.org?.name || "Your Business",
       description: "Customer Due Collection",
       theme: { color: "#3f51b5" },
 

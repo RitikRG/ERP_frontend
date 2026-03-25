@@ -26,7 +26,11 @@ export class SettingsComponent implements OnInit {
     gst: '',
     phone: '',
     address: '',
-    razorpay_key: ''
+    razorpay_key: '',
+    razorpay_secret: '',
+    razorpay_webhook_secret: '',
+    has_razorpay_secret: false,
+    has_razorpay_webhook_secret: false,
   };
 
   constructor(
@@ -48,7 +52,11 @@ export class SettingsComponent implements OnInit {
     });
 
     this.settingsService.getOrgSettings(org_id??"").subscribe(res => {
-      this.org = res.org;
+      this.org = {
+        ...res.org,
+        razorpay_secret: '',
+        razorpay_webhook_secret: '',
+      };
     });
   }
 
@@ -66,7 +74,16 @@ export class SettingsComponent implements OnInit {
     const orgId = this.auth.currentUserValue?.org_id;
 
     this.settingsService.updateOrgSettings(orgId??"", this.org).subscribe({
-      next: () => this.toast.showSuccess("Organisation settings updated!"),
+      next: (res: any) => {
+        this.org = {
+          ...this.org,
+          ...res.org,
+          razorpay_secret: '',
+          razorpay_webhook_secret: '',
+        };
+        this.auth.updateCurrentUserOrganisation(res.org);
+        this.toast.showSuccess("Organisation settings updated!");
+      },
       error: err => this.toast.showError(err.error?.message || "Update failed")
     });
   }

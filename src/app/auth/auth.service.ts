@@ -83,4 +83,23 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!this.getAccessToken();
   }
+
+  updateCurrentUserOrganisation(org: any) {
+    const currentUser = this.currentUser$.value;
+
+    if (!currentUser) {
+      return;
+    }
+
+    const updatedUser = {
+      ...currentUser,
+      org: {
+        ...(currentUser.org || {}),
+        ...org,
+      },
+    };
+
+    this.currentUser$.next(updatedUser);
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+  }
 }

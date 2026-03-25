@@ -17,7 +17,6 @@ import { ToastService } from '../../services/toast.service';
 
 declare var Razorpay: any;
 
-
 @Component({
   selector: 'app-sale-form',
   standalone: true,
@@ -51,7 +50,6 @@ export class AddSaleComponent implements OnInit {
   total_amount = 0;
   selectedProduct: any = null;
 
-
   constructor(
     private fb: FormBuilder,
     private saleService: SaleService,
@@ -65,7 +63,7 @@ export class AddSaleComponent implements OnInit {
       org_id: ['', Validators.required],
       customer_id: [''],
 
-      customer_name: [''], // autocomplete input
+      customer_name: [''],
 
       date: [new Date().toISOString().substring(0, 10), Validators.required],
       payment_status: ['unpaid', Validators.required],
@@ -84,11 +82,9 @@ export class AddSaleComponent implements OnInit {
 
       product_name: [''],
 
-      discount_type: ['none'],          // none | percent | fixed
-      discount_value: [0],              // user-entered value
+      discount_type: ['none'],
+      discount_value: [0],
       final_amount: [0, Validators.required],
-
-
     });
   }
 
@@ -96,7 +92,6 @@ export class AddSaleComponent implements OnInit {
     const org_id = this.auth.currentUserValue?.org_id || '';
     this.saleForm.patchValue({ org_id });
 
-    // Load customers
     this.saleService.getAllCustomers(org_id).subscribe({
       next: (res: any) => {
         this.customers = res.customers || [];
@@ -105,7 +100,6 @@ export class AddSaleComponent implements OnInit {
       }
     });
 
-    // Load products
     this.saleService.getAllProducts(org_id).subscribe({
       next: (res: any) => {
         this.allProducts = res.products || [];
@@ -115,7 +109,6 @@ export class AddSaleComponent implements OnInit {
       }
     });
 
-    // Payment Handling
     this.saleForm.get('payment_status')?.valueChanges.subscribe(status => {
       const paidCtrl = this.saleForm.get('paid_amount');
       const dueCtrl = this.saleForm.get('payment_due_date');
@@ -125,22 +118,18 @@ export class AddSaleComponent implements OnInit {
         paidCtrl?.disable();
         dueCtrl?.setValue('');
         dueCtrl?.disable();
-
       } else if (status === 'partial') {
         paidCtrl?.enable();
         paidCtrl?.setValidators([Validators.required, Validators.min(1)]);
         dueCtrl?.enable();
-
       } else {
         paidCtrl?.setValue('');
         paidCtrl?.disable();
         dueCtrl?.enable();
       }
     });
-
   }
 
-  /** CUSTOMER SEARCH **/
   setupCustomerFilter() {
     this.filteredCustomers = this.saleForm.get('customer_name')!.valueChanges.pipe(
       startWith(''),
@@ -159,7 +148,7 @@ export class AddSaleComponent implements OnInit {
   selectCustomer(customer: any) {
     this.saleForm.patchValue({
       customer_id: customer._id,
-      customer_name: customer 
+      customer_name: customer
     });
   }
 
@@ -167,10 +156,6 @@ export class AddSaleComponent implements OnInit {
     return c ? `${c.name || 'N/A'} (${c.mobile_number})` : '';
   }
 
-  
-
-
-  /** PRODUCT SEARCH **/
   setupProductFilter() {
     this.filteredProducts = this.saleForm.get('product_name')!.valueChanges.pipe(
       startWith(''),
@@ -234,7 +219,6 @@ export class AddSaleComponent implements OnInit {
 
     this.total_amount = total;
 
-    // Apply discount
     let discount = 0;
     const type = this.saleForm.get('discount_type')?.value;
     const val = Number(this.saleForm.get('discount_value')?.value || 0);
@@ -257,7 +241,6 @@ export class AddSaleComponent implements OnInit {
     return { totalQty, total, discount, final };
   }
 
-
   getItemGroup(i: number): FormGroup {
     return this.items.at(i) as FormGroup;
   }
@@ -267,18 +250,14 @@ export class AddSaleComponent implements OnInit {
     return c?.mobile_number || "";
   }
 
-
   collectPayment() {
-    // If partial → use paid_amount
+    const razorpayKey = this.auth.currentUserValue?.org?.razorpay_key || "";
     const paymentStatus = this.saleForm.get('payment_status')?.value;
     const paidAmount = Number(this.saleForm.get('paid_amount')?.value || 0);
-
-    // Calculate final total (after discount)
     const finalAmount = this.calculateTotal().final;
 
     let amountToPay = finalAmount;
 
-    // If partial: Razorpay should take "paid_amount"
     if (paymentStatus === 'partial') {
       if (!paidAmount || paidAmount <= 0) {
         this.toast.showError("Enter a valid partial paid amount.");
@@ -287,17 +266,21 @@ export class AddSaleComponent implements OnInit {
       amountToPay = paidAmount;
     }
 
-    // Validate
     if (!amountToPay || amountToPay <= 0) {
       this.toast.showError("Payment amount is invalid.");
       return;
     }
 
+    if (!razorpayKey) {
+      this.toast.showError("Razorpay key is not configured for this organisation.");
+      return;
+    }
+
     const options = {
-      key: "rzp_test_Ri763pD7uWDKlT",
-      amount: Math.round(amountToPay * 100), // Convert to paisa
+      key: razorpayKey,
+      amount: Math.round(amountToPay * 100),
       currency: "INR",
-      name: "Your Business Name",
+      name: this.auth.currentUserValue?.org?.name || "Your Business Name",
       description: "Sale Payment",
       theme: { color: "#3f51b5" },
 
@@ -306,15 +289,13 @@ export class AddSaleComponent implements OnInit {
 
         this.saleForm.patchValue({
           transaction_id: response.razorpay_payment_id,
-          payment_method: "upi",  // Auto-switch to UPI
+          payment_method: "upi",
         });
 
-        // If full payment was selected
         if (paymentStatus === "paid") {
           this.saleForm.patchValue({ paid_amount: finalAmount });
         }
 
-        // If partial payment was selected → keep user value
         if (paymentStatus === "partial") {
           this.saleForm.patchValue({ paid_amount: paidAmount });
         }
@@ -344,8 +325,6 @@ export class AddSaleComponent implements OnInit {
     const rzp = new Razorpay(options);
     rzp.open();
   }
-
-
 
   submit() {
     if (this.saleForm.invalid) return;

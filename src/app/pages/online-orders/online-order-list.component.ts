@@ -167,15 +167,29 @@ export class OnlineOrderListComponent implements OnInit {
       .join(' ');
   }
 
+  getOnlinePaymentStatus(order: any) {
+    return order?.onlinePayment?.status || 'unpaid';
+  }
+
+  hasSettledOnlinePayment(order: any) {
+    return this.getOnlinePaymentStatus(order) === 'paid';
+  }
+
   resetFulfillmentPayment(order: any) {
     const remainingBalance = Number(order?.saleId?.balance_amount ?? order?.total ?? 0);
-    const paymentStatus = order?.saleId?.payment_status || 'unpaid';
+    const paymentStatus = this.hasSettledOnlinePayment(order)
+      ? 'paid'
+      : order?.saleId?.payment_status || 'unpaid';
 
     this.fulfillmentPayment = {
       paymentStatus,
-      amount: paymentStatus === 'paid' ? remainingBalance : null,
-      payment_method: 'cash',
-      transaction_id: '',
+      amount: this.hasSettledOnlinePayment(order)
+        ? null
+        : paymentStatus === 'paid'
+          ? remainingBalance
+          : null,
+      payment_method: this.hasSettledOnlinePayment(order) ? 'upi' : 'cash',
+      transaction_id: order?.onlinePayment?.paymentId || '',
       cheque_no: '',
     };
   }
@@ -187,6 +201,14 @@ export class OnlineOrderListComponent implements OnInit {
   }
 
   onFulfillmentPaymentStatusChange() {
+    if (this.hasSettledOnlinePayment(this.selectedOrder)) {
+      this.fulfillmentPayment.amount = null;
+      this.fulfillmentPayment.payment_method = 'upi';
+      this.fulfillmentPayment.transaction_id =
+        this.selectedOrder?.onlinePayment?.paymentId || '';
+      return;
+    }
+
     if (this.fulfillmentPayment.paymentStatus === 'paid') {
       this.fulfillmentPayment.amount = this.getRemainingBalance();
       return;
@@ -202,10 +224,18 @@ export class OnlineOrderListComponent implements OnInit {
   }
 
   getRemainingBalance() {
+    if (this.hasSettledOnlinePayment(this.selectedOrder)) {
+      return Number(this.selectedOrder?.saleId?.balance_amount ?? 0);
+    }
+
     return Number(this.selectedOrder?.saleId?.balance_amount ?? this.selectedOrder?.total ?? 0);
   }
 
   requiresPaymentEntry() {
+    if (this.hasSettledOnlinePayment(this.selectedOrder)) {
+      return false;
+    }
+
     return this.fulfillmentPayment.paymentStatus === 'paid' || this.fulfillmentPayment.paymentStatus === 'partial';
   }
 
