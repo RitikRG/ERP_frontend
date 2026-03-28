@@ -54,6 +54,37 @@
           <textarea rows="3" [(ngModel)]="org.address"></textarea>
         </div>
 
+        <ng-container *ngIf="sop.delivery.enabled">
+          <div class="form-group">
+            <label>Shop Location</label>
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="capturingLocation || savingOrg"
+              (click)="captureCurrentLocation()"
+            >
+              {{ capturingLocation ? 'Capturing...' : 'Use current location' }}
+            </button>
+            <small class="page-note" *ngIf="hasShopLocation()">
+              Latitude: {{ org.shopLocation.latitude }} | Longitude: {{ org.shopLocation.longitude }}
+            </small>
+            <small class="page-note" *ngIf="!hasShopLocation()">
+              No shop location captured yet.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label>Delivery Radius (km)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              [(ngModel)]="sop.delivery.radiusKm"
+              placeholder="Enter delivery radius in kilometers"
+            />
+          </div>
+        </ng-container>
+
         <div class="form-group">
           <label>Razorpay Key ID</label>
           <input type="text" [(ngModel)]="org.razorpay_key" />
@@ -84,7 +115,9 @@
         </div>
 
         <div class="form-actions">
-          <button class="btn-primary" (click)="saveOrgSettings()">Save Organisation Settings</button>
+          <button class="btn-primary" [disabled]="savingOrg" (click)="saveOrgSettings()">
+            {{ savingOrg ? 'Saving...' : 'Save Organisation Settings' }}
+          </button>
         </div>
       </section>
     </div>

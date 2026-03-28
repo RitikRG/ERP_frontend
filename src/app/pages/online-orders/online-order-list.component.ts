@@ -167,6 +167,30 @@ export class OnlineOrderListComponent implements OnInit {
       .join(' ');
   }
 
+  hasDeliveryLocation(order: any) {
+    return (
+      order?.deliveryLocation?.latitude !== null &&
+      order?.deliveryLocation?.latitude !== undefined &&
+      order?.deliveryLocation?.longitude !== null &&
+      order?.deliveryLocation?.longitude !== undefined
+    );
+  }
+
+  formatDeliveryLocation(order: any) {
+    if (!this.hasDeliveryLocation(order)) return 'Location not shared';
+
+    const address = order?.deliveryLocation?.address || order?.deliveryLocation?.label || '';
+    const coordinates = `${order.deliveryLocation.latitude}, ${order.deliveryLocation.longitude}`;
+
+    return address ? `${address} (${coordinates})` : coordinates;
+  }
+
+  getDeliveryLocationMapUrl(order: any) {
+    if (!this.hasDeliveryLocation(order)) return '';
+
+    return `https://www.google.com/maps?q=${order.deliveryLocation.latitude},${order.deliveryLocation.longitude}`;
+  }
+
   getOnlinePaymentStatus(order: any) {
     return order?.onlinePayment?.status || 'unpaid';
   }

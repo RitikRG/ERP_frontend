@@ -124,6 +124,15 @@
         <p><strong>Created At:</strong> {{ selectedOrder.createdAt | date:'dd/MM/yyyy hh:mm a' }}</p>
         <p><strong>Updated At:</strong> {{ selectedOrder.updatedAt | date:'dd/MM/yyyy hh:mm a' }}</p>
         <p><strong>Delivery Address:</strong> {{ selectedOrder.deliveryAddress || 'Pickup order' }}</p>
+        <p *ngIf="hasDeliveryLocation(selectedOrder)">
+          <strong>Shared Location:</strong> {{ formatDeliveryLocation(selectedOrder) }}
+        </p>
+        <p *ngIf="hasDeliveryLocation(selectedOrder)">
+          <strong>Map:</strong>
+          <a [href]="getDeliveryLocationMapUrl(selectedOrder)" target="_blank" rel="noopener noreferrer">
+            Open in Google Maps
+          </a>
+        </p>
         <p><strong>Notes:</strong> {{ selectedOrder.notes || 'No special instructions provided.' }}</p>
         <p *ngIf="selectedOrder.paymentMethod === 'upi'"><strong>UPI Status:</strong> {{ formatStatus(getOnlinePaymentStatus(selectedOrder)) }}</p>
         <p *ngIf="selectedOrder.onlinePayment?.shortUrl"><strong>Payment Link:</strong> {{ selectedOrder.onlinePayment.shortUrl }}</p>
