@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
@@ -52,6 +53,7 @@ export class OnlineOrderListComponent implements OnInit {
     private onlineOrderService: OnlineOrderService,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit() {
@@ -176,19 +178,25 @@ export class OnlineOrderListComponent implements OnInit {
     );
   }
 
-  formatDeliveryLocation(order: any) {
+  getDeliveryLocationLabel(order: any) {
     if (!this.hasDeliveryLocation(order)) return 'Location not shared';
 
-    const address = order?.deliveryLocation?.address || order?.deliveryLocation?.label || '';
-    const coordinates = `${order.deliveryLocation.latitude}, ${order.deliveryLocation.longitude}`;
-
-    return address ? `${address} (${coordinates})` : coordinates;
+    return order?.deliveryLocation?.address || order?.deliveryLocation?.label || 'Shared current location';
   }
 
   getDeliveryLocationMapUrl(order: any) {
     if (!this.hasDeliveryLocation(order)) return '';
 
     return `https://www.google.com/maps?q=${order.deliveryLocation.latitude},${order.deliveryLocation.longitude}`;
+  }
+
+  getDeliveryLocationEmbedUrl(order: any): SafeResourceUrl | null {
+    if (!this.hasDeliveryLocation(order)) return null;
+
+    const { latitude, longitude } = order.deliveryLocation;
+    const mapUrl = `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(mapUrl);
   }
 
   getOnlinePaymentStatus(order: any) {
