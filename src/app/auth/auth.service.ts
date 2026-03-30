@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, of, tap } from 'rxjs';
 import { environment } from '../../enviornment/enviornment';
 import { User } from '../core/models/user.model';
 
@@ -14,15 +14,12 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private currentUser$ = new BehaviorSubject<User | null>(null);
   private tokenKey = 'access_token';
+  private userKey = 'currentUser';
 
   constructor(private http: HttpClient) {
-    const token = localStorage.getItem(this.tokenKey);
-    if (token) {
-      // optional: decode token and preload user
-    }
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem(this.userKey);
     if (storedUser) {
-      this.currentUser$ = new BehaviorSubject(JSON.parse(storedUser));
+      this.currentUser$.next(JSON.parse(storedUser));
     }
   }
 
@@ -42,15 +39,30 @@ export class AuthService {
     localStorage.setItem(this.tokenKey, token);
   }
 
+  private setCurrentUser(user: User | null) {
+    this.currentUser$.next(user);
+
+    if (user) {
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(this.userKey);
+    }
+  }
+
   private clearAccessToken() {
     localStorage.removeItem(this.tokenKey);
   }
 
-  register(payload: { email: string; password: string; name?: string; phone?: string }) {
+  private clearSession() {
+    this.clearAccessToken();
+    this.setCurrentUser(null);
+  }
+
+  register(payload: { email: string; password: string; name?: string; phone?: string; org_id?: string }) {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload, { withCredentials: true }).pipe(
       tap(res => {
         this.setAccessToken(res.accessToken);
-        this.currentUser$.next(res.user);
+        this.setCurrentUser(res.user);
       })
     );
   }
@@ -59,8 +71,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true }).pipe(
       tap(res => {
         this.setAccessToken(res.accessToken);
-        this.currentUser$.next(res.user);
-        localStorage.setItem('currentUser', JSON.stringify(res.user));
+        this.setCurrentUser(res.user);
       })
     );
   }
@@ -74,14 +85,17 @@ export class AuthService {
   logout() {
     return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
       tap(() => {
-        this.clearAccessToken();
-        this.currentUser$.next(null);
+        this.clearSession();
+      }),
+      catchError((error) => {
+        this.clearSession();
+        return of(error);
       })
     );
   }
 
   isLoggedIn(): boolean {
-    return !!this.getAccessToken();
+    return !!this.getAccessToken() && !!this.currentUser$.value;
   }
 
   updateCurrentUserOrganisation(org: any) {
@@ -99,7 +113,17 @@ export class AuthService {
       },
     };
 
-    this.currentUser$.next(updatedUser);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    this.setCurrentUser(updatedUser);
+  }
+
+  hasRole(...roles: Array<User['type']>) {
+    const currentRole = this.currentUserValue?.type;
+    return !!currentRole && roles.includes(currentRole);
+  }
+
+  getDefaultRoute() {
+    return this.currentUserValue?.type === 'delivery_agent'
+      ? '/delivery/orders'
+      : '/dashboard';
   }
 }

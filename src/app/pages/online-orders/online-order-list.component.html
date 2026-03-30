@@ -43,6 +43,7 @@
             <th>Payment Method</th>
             <th>UPI Status</th>
             <th>Status</th>
+            <th>Assigned Agent</th>
             <th>Notes</th>
           </tr>
         </thead>
@@ -61,6 +62,7 @@
             <td>{{ formatPaymentMethod(order.paymentMethod) }}</td>
             <td>{{ formatStatus(getOnlinePaymentStatus(order)) }}</td>
             <td>{{ formatStatus(order.status) }}</td>
+            <td>{{ getAssignedAgentName(order) }}</td>
             <td>{{ order.notes || '-' }}</td>
           </tr>
         </tbody>
@@ -154,6 +156,40 @@
         <p *ngIf="selectedOrder.onlinePayment?.paymentId"><strong>Transaction ID:</strong> {{ selectedOrder.onlinePayment.paymentId }}</p>
         <p *ngIf="selectedOrder.saleId?.sale_ref"><strong>Linked Sale:</strong> {{ selectedOrder.saleId.sale_ref }}</p>
         <p *ngIf="selectedOrder.saleId"><strong>Sale Payment Status:</strong> {{ selectedOrder.saleId.payment_status | titlecase }}</p>
+        <p *ngIf="selectedOrder.fulfillmentMode === 'delivery'">
+          <strong>Assigned Agent:</strong> {{ getAssignedAgentName(selectedOrder) }}
+        </p>
+        <p *ngIf="shouldShowTracking(selectedOrder)">
+          <strong>Agent Live Location:</strong> {{ getAgentLiveLocationLabel(selectedOrder) }}
+        </p>
+        <p *ngIf="shouldShowTracking(selectedOrder) && selectedOrder?.delivery?.agentLiveLocation?.recordedAt">
+          <strong>Last Tracking Update:</strong>
+          {{ selectedOrder.delivery.agentLiveLocation.recordedAt | date:'dd/MM/yyyy hh:mm a' }}
+        </p>
+      </div>
+
+      <div *ngIf="shouldShowTracking(selectedOrder)">
+        <h4>Live Tracking</h4>
+        <p class="page-note">
+          Tracking refreshes automatically while this order is open.
+        </p>
+        <div *ngIf="hasAgentLiveLocation(selectedOrder)">
+          <p>
+            <strong>Latest Agent Position:</strong>
+            <a [href]="getAgentLiveLocationMapUrl(selectedOrder)" target="_blank" rel="noopener noreferrer">
+              Open agent location in Google Maps
+            </a>
+          </p>
+          <p *ngIf="hasDeliveryLocation(selectedOrder)">
+            <strong>Live Route:</strong>
+            <a [href]="getLiveRouteUrl(selectedOrder)" target="_blank" rel="noopener noreferrer">
+              Open route from agent to customer
+            </a>
+          </p>
+        </div>
+        <p *ngIf="!hasAgentLiveLocation(selectedOrder)" class="page-note">
+          The agent has not shared a live location yet.
+        </p>
       </div>
 
       <h4>Order Items</h4>
@@ -202,6 +238,20 @@
     </div>
 
     <div class="details-actions">
+      <div *ngIf="canAssignDeliveryAgent(selectedOrder)">
+        <label for="delivery-agent"><strong>Delivery Agent</strong></label>
+        <select
+          id="delivery-agent"
+          [(ngModel)]="selectedAgentId"
+          [disabled]="assignmentInProgress"
+        >
+          <option value="">Select delivery agent</option>
+          <option *ngFor="let agent of deliveryAgents" [value]="agent._id">
+            {{ agent.name }}{{ agent.phone ? ' - ' + agent.phone : '' }}
+          </option>
+        </select>
+      </div>
+
       <label for="order-status"><strong>Status</strong></label>
       <select
         id="order-status"
@@ -285,6 +335,14 @@
         />
       </div>
 
+      <button
+        *ngIf="canAssignDeliveryAgent(selectedOrder)"
+        class="btn-secondary"
+        (click)="assignSelectedAgent()"
+        [disabled]="assignmentInProgress || !selectedAgentId"
+      >
+        {{ assignmentInProgress ? 'Assigning...' : 'Assign Delivery Agent' }}
+      </button>
       <button
         class="btn-primary"
         (click)="updateSelectedOrderStatus()"

@@ -20,7 +20,7 @@ export class LoginComponent {
   onLogin(e: Event) {
     e.preventDefault();
     this.auth.login(this.email, this.password).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => this.router.navigate([this.auth.getDefaultRoute()]),
       error: err => alert(err.error?.message || 'Login failed'),
     });
   }

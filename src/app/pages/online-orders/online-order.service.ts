@@ -17,4 +17,12 @@ export class OnlineOrderService {
   updateOnlineOrderStatus(orgId: string, orderId: string, payload: any) {
     return this.http.put(`${this.apiUrl}/${orgId}/${orderId}/status`, payload);
   }
+
+  assignDeliveryAgent(orderId: string, agentId: string) {
+    return this.http.put(`${this.apiUrl}/${orderId}/assign-agent`, { agentId });
+  }
+
+  getOrderTracking(orderId: string) {
+    return this.http.get(`${this.apiUrl}/tracking/${orderId}`);
+  }
 }

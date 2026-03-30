@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -6,6 +6,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
 import { OnlineOrderService } from './online-order.service';
+import { DeliveryAgentService } from '../delivery-agents/delivery-agent.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-online-order-list',
@@ -13,7 +15,7 @@ import { OnlineOrderService } from './online-order.service';
   imports: [CommonModule, FormsModule, HeaderComponent, CurrencyPipe, DatePipe],
   templateUrl: './online-order-list.component.html',
 })
-export class OnlineOrderListComponent implements OnInit {
+export class OnlineOrderListComponent implements OnInit, OnDestroy {
   currentOrg: any = null;
   readonly orderStatuses = [
     'pending',
@@ -27,10 +29,13 @@ export class OnlineOrderListComponent implements OnInit {
   onlineOrders: any[] = [];
   filteredOrders: any[] = [];
   paginatedOrders: any[] = [];
+  deliveryAgents: any[] = [];
 
   loading = true;
   errorMessage = '';
   searchTerm = '';
+  trackingPollId: ReturnType<typeof setInterval> | null = null;
+  trackingRefreshInProgress = false;
 
   page = 1;
   pageSize = 10;
@@ -40,7 +45,9 @@ export class OnlineOrderListComponent implements OnInit {
   selectedStatus = 'pending';
   showDetailsPopup = false;
   statusUpdateInProgress = false;
+  assignmentInProgress = false;
   statusActionMessage = '';
+  selectedAgentId = '';
   fulfillmentPayment: any = {
     paymentStatus: 'unpaid',
     amount: null,
@@ -51,14 +58,33 @@ export class OnlineOrderListComponent implements OnInit {
 
   constructor(
     private onlineOrderService: OnlineOrderService,
+    private deliveryAgentService: DeliveryAgentService,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
     private sanitizer: DomSanitizer,
+    private toast: ToastService,
   ) {}
 
   ngOnInit() {
     this.currentOrg = this.auth.currentUserValue?.org;
+    this.loadDeliveryAgents();
     this.fetchOnlineOrders();
+  }
+
+  ngOnDestroy() {
+    this.stopTrackingPolling();
+  }
+
+  loadDeliveryAgents() {
+    this.deliveryAgentService.getAgents().subscribe({
+      next: (res: any) => {
+        this.deliveryAgents = (res.agents || []).filter((agent: any) => agent.isActive !== false);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.deliveryAgents = [];
+      },
+    });
   }
 
   fetchOnlineOrders() {
@@ -127,17 +153,22 @@ export class OnlineOrderListComponent implements OnInit {
   }
 
   openOrderDetails(order: any) {
+    this.stopTrackingPolling();
     this.selectedOrder = order;
     this.selectedStatus = order?.status || 'pending';
+    this.selectedAgentId = order?.delivery?.assignedAgentId?._id || order?.delivery?.assignedAgentId || '';
     this.resetFulfillmentPayment(order);
     this.statusActionMessage = '';
     this.showDetailsPopup = true;
+    this.startTrackingPollingIfNeeded();
   }
 
   closeOrderDetails() {
+    this.stopTrackingPolling();
     this.showDetailsPopup = false;
     this.selectedOrder = null;
     this.selectedStatus = 'pending';
+    this.selectedAgentId = '';
     this.resetFulfillmentPayment(null);
     this.statusActionMessage = '';
     this.statusUpdateInProgress = false;
@@ -167,6 +198,128 @@ export class OnlineOrderListComponent implements OnInit {
       .split('-')
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
+  }
+
+  getAssignedAgentName(order: any) {
+    return order?.delivery?.assignedAgentId?.name || 'Unassigned';
+  }
+
+  hasAgentLiveLocation(order: any) {
+    return (
+      order?.delivery?.agentLiveLocation?.latitude !== null &&
+      order?.delivery?.agentLiveLocation?.latitude !== undefined &&
+      order?.delivery?.agentLiveLocation?.longitude !== null &&
+      order?.delivery?.agentLiveLocation?.longitude !== undefined
+    );
+  }
+
+  getAgentLiveLocationLabel(order: any) {
+    const location = order?.delivery?.agentLiveLocation;
+
+    if (!location?.recordedAt) {
+      return 'Not shared yet';
+    }
+
+    const accuracy = location?.accuracy ? ` ±${Math.round(location.accuracy)}m` : '';
+    return `${location.latitude}, ${location.longitude}${accuracy}`;
+  }
+
+  getAgentLiveLocationMapUrl(order: any) {
+    if (!this.hasAgentLiveLocation(order)) {
+      return '';
+    }
+
+    const location = order.delivery.agentLiveLocation;
+    return `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+  }
+
+  getLiveRouteUrl(order: any) {
+    if (!this.hasAgentLiveLocation(order) || !this.hasDeliveryLocation(order)) {
+      return '';
+    }
+
+    return `https://www.google.com/maps/dir/?api=1&origin=${order.delivery.agentLiveLocation.latitude},${order.delivery.agentLiveLocation.longitude}&destination=${order.deliveryLocation.latitude},${order.deliveryLocation.longitude}&travelmode=driving`;
+  }
+
+  canAssignDeliveryAgent(order: any) {
+    return (
+      order?.fulfillmentMode === 'delivery' &&
+      !['fulfilled', 'cancelled'].includes(String(order?.status || '').toLowerCase())
+    );
+  }
+
+  shouldShowTracking(order: any) {
+    return (
+      order?.fulfillmentMode === 'delivery' &&
+      !!order?.delivery?.assignedAgentId &&
+      String(order?.status || '').toLowerCase() === 'in-delivery'
+    );
+  }
+
+  private mergeTrackedOrder(tracking: any) {
+    if (!tracking?._id) {
+      return;
+    }
+
+    this.onlineOrders = this.onlineOrders.map((order) =>
+      order._id === tracking._id
+        ? {
+            ...order,
+            status: tracking.status,
+            updatedAt: tracking.updatedAt,
+            deliveryAddress: tracking.deliveryAddress ?? order.deliveryAddress,
+            deliveryLocation: tracking.deliveryLocation ?? order.deliveryLocation,
+            delivery: {
+              ...(order.delivery || {}),
+              assignedAgentId: tracking.assignedAgent || order.delivery?.assignedAgentId || null,
+              agentLiveLocation: tracking.agentLiveLocation || null,
+            },
+          }
+        : order
+    );
+
+    if (this.selectedOrder?._id === tracking._id) {
+      this.selectedOrder = this.onlineOrders.find((order) => order._id === tracking._id) || this.selectedOrder;
+      this.selectedStatus = this.selectedOrder?.status || this.selectedStatus;
+    }
+
+    this.filterOrders();
+  }
+
+  refreshSelectedOrderTracking() {
+    if (!this.selectedOrder?._id || this.trackingRefreshInProgress) {
+      return;
+    }
+
+    this.trackingRefreshInProgress = true;
+    this.onlineOrderService.getOrderTracking(this.selectedOrder._id).subscribe({
+      next: (res: any) => {
+        this.trackingRefreshInProgress = false;
+        this.mergeTrackedOrder(res.tracking);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.trackingRefreshInProgress = false;
+      },
+    });
+  }
+
+  startTrackingPollingIfNeeded() {
+    if (!this.shouldShowTracking(this.selectedOrder)) {
+      return;
+    }
+
+    this.refreshSelectedOrderTracking();
+    this.trackingPollId = setInterval(() => {
+      this.refreshSelectedOrderTracking();
+    }, 15000);
+  }
+
+  stopTrackingPolling() {
+    if (this.trackingPollId) {
+      clearInterval(this.trackingPollId);
+      this.trackingPollId = null;
+    }
   }
 
   hasDeliveryLocation(order: any) {
@@ -316,13 +469,15 @@ export class OnlineOrderListComponent implements OnInit {
           );
           this.filterOrders();
           this.selectedOrder = updatedOrder;
-          this.selectedStatus = updatedOrder.status;
-          this.resetFulfillmentPayment(updatedOrder);
+        this.selectedStatus = updatedOrder.status;
+        this.resetFulfillmentPayment(updatedOrder);
           this.statusActionMessage = res.saleCreated
             ? 'Order status updated and sale created.'
             : 'Order status updated successfully.';
-          this.statusUpdateInProgress = false;
-          this.cdr.detectChanges();
+        this.statusUpdateInProgress = false;
+        this.stopTrackingPolling();
+        this.startTrackingPollingIfNeeded();
+        this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error updating online order status:', err);
@@ -331,5 +486,43 @@ export class OnlineOrderListComponent implements OnInit {
           this.statusUpdateInProgress = false;
         },
       });
+  }
+
+  assignSelectedAgent() {
+    const orderId = this.selectedOrder?._id;
+
+    if (!orderId || !this.selectedAgentId) {
+      this.statusActionMessage = 'Select a delivery agent first.';
+      return;
+    }
+
+    this.assignmentInProgress = true;
+    this.onlineOrderService.assignDeliveryAgent(orderId, this.selectedAgentId).subscribe({
+      next: (res: any) => {
+        const updatedOrder = res.order;
+        this.onlineOrders = this.onlineOrders.map((order) =>
+          order._id === updatedOrder._id ? updatedOrder : order
+        );
+        this.filterOrders();
+        this.selectedOrder = updatedOrder;
+        this.selectedStatus = updatedOrder.status;
+        this.selectedAgentId =
+          updatedOrder?.delivery?.assignedAgentId?._id || updatedOrder?.delivery?.assignedAgentId || '';
+        this.assignmentInProgress = false;
+        this.statusActionMessage = res.saleCreated
+          ? 'Delivery agent assigned and sale created.'
+          : 'Delivery agent assigned successfully.';
+        this.toast.showSuccess(this.statusActionMessage);
+        this.stopTrackingPolling();
+        this.startTrackingPollingIfNeeded();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.assignmentInProgress = false;
+        this.statusActionMessage = err.error?.message || 'Failed to assign delivery agent.';
+        this.toast.showError(this.statusActionMessage);
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

@@ -94,7 +94,7 @@
 
             <hr />
 
-            <button class="dropdown-btn" (click)="navigateToSettings()">
+            <button *ngIf="canOpenSettings" class="dropdown-btn" (click)="navigateToSettings()">
               <i class="fa fa-cog"></i> Settings
             </button>
 

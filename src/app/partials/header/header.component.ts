@@ -23,67 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   sidebarOpen = true;
   isCompactViewport = false;
 
-  menuItems: MenuItem[] = [
-    { label: 'Dashboard', icon: 'fa fa-home', route: '/dashboard' },
-    {
-      label: 'Sales',
-      icon: 'fa fa-box',
-      route: 'javascript:void(0)',
-      children: [
-        { label: 'Add Sale', icon: 'fa fa-plus', route: '/sales/add-sale' },
-        { label: 'Sales List', icon: 'fa fa-plus', route: '/sales/list' },
-        { label: 'Online Orders', icon: 'fa fa-list', route: '/sales/online-orders' },
-      ],
-    },
-    {
-      label: 'Inventory',
-      icon: 'fa fa-box',
-      route: 'javascript:void(0)',
-      children: [
-        { label: 'Current Stock', icon: 'fa fa-plus', route: '/inventory/current-stock' },
-        { label: 'Add Purchase', icon: 'fa fa-plus', route: '/inventory/add-purchase' },
-        { label: 'Purchase List', icon: 'fa fa-list', route: '/inventory/list-purchase' },
-      ],
-    },
-    {
-      label: 'Products',
-      icon: 'fa fa-box',
-      route: 'javascript:void(0)',
-      children: [
-        { label: 'Add Product', icon: 'fa fa-plus', route: '/product/new' },
-        { label: 'Product List', icon: 'fa fa-list', route: '/product/list' },
-      ],
-    },
-    {
-      label: 'Supplier',
-      icon: 'fa fa-box',
-      route: 'javascript:void(0)',
-      children: [
-        { label: 'Add Supplier', icon: 'fa fa-plus', route: '/supplier/new' },
-        { label: 'Suppliers List', icon: 'fa fa-plus', route: '/supplier/list' },
-      ],
-    },
-    {
-      label: 'Customers',
-      icon: 'fa fa-box',
-      route: 'javascript:void(0)',
-      children: [
-        { label: 'Add Customer', icon: 'fa fa-plus', route: '/customers/new' },
-        { label: 'Customers List', icon: 'fa fa-plus', route: '/customers/list' },
-        { label: 'Khatabook', icon: 'fa fa-plus', route: '/customers/dues' },
-      ],
-    },
-    { label: 'Share', icon: 'fa fa-share-alt', route: '#' },
-    {
-      label: 'Settings',
-      icon: 'fa fa-box',
-      route: 'javascript:void(0)',
-      children: [
-        { label: 'User Settings', icon: 'fa fa-plus', route: '/user/settings' },
-        { label: 'SOP Settings', icon: 'fa fa-plus', route: '/settings/sop' },
-      ],
-    },
-  ];
+  menuItems: MenuItem[] = [];
 
   searchText: string = '';
   filteredResults: any[] = [];
@@ -91,6 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   activeIndex = 0;
 
   showUserDropdown = false;
+  canOpenSettings = false;
 
   user: any = {
     name: 'User',
@@ -109,11 +50,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
   ) {
-    this.menuItems.forEach((item) => {
-      if (item.children) {
-        item.isOpen = item.children.some((child) => this.router.url.startsWith(child.route || ''));
-      }
-    });
+    this.menuItems = this.buildMenuForRole(this.auth.currentUserValue?.type);
+    this.syncOpenMenus();
   }
 
   ngOnInit() {
@@ -125,8 +63,96 @@ export class HeaderComponent implements OnInit, OnDestroy {
       name: u?.name || 'User',
       company: u?.org?.name || 'Company',
     };
+    this.canOpenSettings = this.auth.hasRole('owner');
+    this.menuItems = this.buildMenuForRole(u?.type);
+    this.syncOpenMenus();
 
     document.addEventListener('click', this.documentClickHandler);
+  }
+
+  private buildMenuForRole(role: string | undefined): MenuItem[] {
+    if (role === 'delivery_agent') {
+      return [
+        {
+          label: 'Deliveries',
+          icon: 'fa fa-truck',
+          route: 'javascript:void(0)',
+          children: [
+            { label: 'Assigned Orders', icon: 'fa fa-list', route: '/delivery/orders' },
+          ],
+        },
+      ];
+    }
+
+    return [
+      { label: 'Dashboard', icon: 'fa fa-home', route: '/dashboard' },
+      {
+        label: 'Sales',
+        icon: 'fa fa-box',
+        route: 'javascript:void(0)',
+        children: [
+          { label: 'Add Sale', icon: 'fa fa-plus', route: '/sales/add-sale' },
+          { label: 'Sales List', icon: 'fa fa-plus', route: '/sales/list' },
+          { label: 'Online Orders', icon: 'fa fa-list', route: '/sales/online-orders' },
+          { label: 'Delivery Agents', icon: 'fa fa-truck', route: '/delivery-agents' },
+        ],
+      },
+      {
+        label: 'Inventory',
+        icon: 'fa fa-box',
+        route: 'javascript:void(0)',
+        children: [
+          { label: 'Current Stock', icon: 'fa fa-plus', route: '/inventory/current-stock' },
+          { label: 'Add Purchase', icon: 'fa fa-plus', route: '/inventory/add-purchase' },
+          { label: 'Purchase List', icon: 'fa fa-list', route: '/inventory/list-purchase' },
+        ],
+      },
+      {
+        label: 'Products',
+        icon: 'fa fa-box',
+        route: 'javascript:void(0)',
+        children: [
+          { label: 'Add Product', icon: 'fa fa-plus', route: '/product/new' },
+          { label: 'Product List', icon: 'fa fa-list', route: '/product/list' },
+        ],
+      },
+      {
+        label: 'Supplier',
+        icon: 'fa fa-box',
+        route: 'javascript:void(0)',
+        children: [
+          { label: 'Add Supplier', icon: 'fa fa-plus', route: '/supplier/new' },
+          { label: 'Suppliers List', icon: 'fa fa-plus', route: '/supplier/list' },
+        ],
+      },
+      {
+        label: 'Customers',
+        icon: 'fa fa-box',
+        route: 'javascript:void(0)',
+        children: [
+          { label: 'Add Customer', icon: 'fa fa-plus', route: '/customers/new' },
+          { label: 'Customers List', icon: 'fa fa-plus', route: '/customers/list' },
+          { label: 'Khatabook', icon: 'fa fa-plus', route: '/customers/dues' },
+        ],
+      },
+      {
+        label: 'Settings',
+        icon: 'fa fa-box',
+        route: 'javascript:void(0)',
+        children: [
+          { label: 'User Settings', icon: 'fa fa-plus', route: '/user/settings' },
+          { label: 'SOP Settings', icon: 'fa fa-plus', route: '/settings/sop' },
+        ],
+      },
+    ];
+  }
+
+  private syncOpenMenus() {
+    this.menuItems.forEach((item) => {
+      if (item.children) {
+        item.isOpen = item.children.some((child) => this.router.url.startsWith(child.route || ''));
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -163,8 +189,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logout() {
     this.showUserDropdown = false;
-    this.auth.logout();
-    this.router.navigate(['/login']);
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login']),
+    });
   }
 
   toggleSidebar() {

@@ -6,10 +6,17 @@ export const authGuard: CanActivateFn = (route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.isLoggedIn()) {
+  if (!auth.isLoggedIn()) {
+    router.navigate(['/login']);
+    return false;
+  }
+
+  const allowedRoles = route.data?.['roles'] as string[] | undefined;
+
+  if (!allowedRoles?.length || allowedRoles.includes(auth.currentUserValue?.type || '')) {
     return true;
   }
 
-  router.navigate(['/login']);
+  router.navigate([auth.getDefaultRoute()]);
   return false;
 };
