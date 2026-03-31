@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../auth/auth.service';
+import { NotificationService } from '../../services/notification.service';
+import { NotificationItem } from '../../core/models/notification';
 
 interface MenuItem {
   label: string;
@@ -31,7 +33,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   activeIndex = 0;
 
   showUserDropdown = false;
+  showNotificationDropdown = false;
   canOpenSettings = false;
+
+  unreadCount = 0;
+  notifications: NotificationItem[] = [];
 
   user: any = {
     name: 'User',
@@ -39,16 +45,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   };
 
   private readonly documentClickHandler = () => {
+    let changed = false;
     if (this.showUserDropdown) {
       this.showUserDropdown = false;
-      this.cdr.detectChanges();
+      changed = true;
     }
+    if (this.showNotificationDropdown) {
+      this.showNotificationDropdown = false;
+      changed = true;
+    }
+    if (changed) this.cdr.detectChanges();
   };
 
   constructor(
     private router: Router,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService
   ) {
     this.menuItems = this.buildMenuForRole(this.auth.currentUserValue?.type);
     this.syncOpenMenus();
@@ -68,6 +81,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.syncOpenMenus();
 
     document.addEventListener('click', this.documentClickHandler);
+
+    this.notificationService.unreadCount$.subscribe(c => {
+      this.unreadCount = c;
+      this.cdr.detectChanges();
+    });
+    this.notificationService.notifications$.subscribe(n => {
+      this.notifications = n.slice(0, 5); // show top 5 in dropdown
+      this.cdr.detectChanges();
+    });
+
+    if (u) {
+      this.notificationService.requestPermissionAndSubscribe();
+      this.notificationService.fetchNotifications(1, 10).subscribe();
+    }
   }
 
   private buildMenuForRole(role: string | undefined): MenuItem[] {
@@ -178,7 +205,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleUserMenu() {
     this.showUserDropdown = !this.showUserDropdown;
+    this.showNotificationDropdown = false;
     this.cdr.detectChanges();
+  }
+
+  toggleNotificationMenu(event: Event) {
+    event.stopPropagation();
+    this.showNotificationDropdown = !this.showNotificationDropdown;
+    this.showUserDropdown = false;
+    this.cdr.detectChanges();
+  }
+
+  onNotificationClick(notification: NotificationItem, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.showNotificationDropdown = false;
+    if (!notification.isRead) {
+      this.notificationService.markAsRead(notification.id).subscribe();
+    }
+    if (notification.deeplink) {
+      this.router.navigateByUrl(notification.deeplink);
+    }
+  }
+
+  viewAllNotifications(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.showNotificationDropdown = false;
+    this.router.navigate(['/notifications']);
   }
 
   navigateToSettings() {

@@ -15,6 +15,7 @@ export class AuthService {
   private currentUser$ = new BehaviorSubject<User | null>(null);
   private tokenKey = 'access_token';
   private userKey = 'currentUser';
+  private deviceIdKey = 'deviceId';
 
   constructor(private http: HttpClient) {
     const storedUser = localStorage.getItem(this.userKey);
@@ -58,8 +59,22 @@ export class AuthService {
     this.setCurrentUser(null);
   }
 
+  getDeviceId(): string {
+    let id = localStorage.getItem(this.deviceIdKey);
+    if (!id) {
+      id = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now();
+      localStorage.setItem(this.deviceIdKey, id);
+    }
+    return id;
+  }
+
+  getDeviceLabel(): string {
+    return navigator.userAgent || 'Unknown Device';
+  }
+
   register(payload: { email: string; password: string; name?: string; phone?: string; org_id?: string }) {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload, { withCredentials: true }).pipe(
+    const fullPayload = { ...payload, deviceId: this.getDeviceId(), deviceLabel: this.getDeviceLabel() };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, fullPayload, { withCredentials: true }).pipe(
       tap(res => {
         this.setAccessToken(res.accessToken);
         this.setCurrentUser(res.user);
@@ -68,7 +83,8 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true }).pipe(
+    const fullPayload = { email, password, deviceId: this.getDeviceId(), deviceLabel: this.getDeviceLabel() };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, fullPayload, { withCredentials: true }).pipe(
       tap(res => {
         this.setAccessToken(res.accessToken);
         this.setCurrentUser(res.user);

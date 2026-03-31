@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../enviornment/enviornment';
+import { AuthService } from '../auth/auth.service';
 
 export interface Organisation {
   _id: string;
@@ -19,7 +20,7 @@ export interface Organisation {
 export class OrgService {
   private apiUrl = `${environment.apiUrl}/org`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Register a new organisation
   registerOrganisation(payload: {
@@ -31,9 +32,10 @@ export class OrgService {
     email: string;
     password: string;
   }): Observable<{ organisation: Organisation; user: any; accessToken: string }> {
+    const fullPayload = { ...payload, deviceId: this.authService.getDeviceId(), deviceLabel: this.authService.getDeviceLabel() };
     return this.http.post<{ organisation: Organisation; user: any; accessToken: string }>(
       `${this.apiUrl}/register`,
-      payload,
+      fullPayload,
       { withCredentials: true } 
     );
   }

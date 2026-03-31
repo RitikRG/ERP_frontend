@@ -23,6 +23,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { SopSettingsComponent } from './pages/settings/sop-settings.component';
 import { DeliveryAgentManagementComponent } from './pages/delivery-agents/delivery-agent-management.component';
 import { DeliveryOrdersComponent } from './pages/delivery/delivery-orders.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -63,5 +64,6 @@ export const routes: Routes = [
   // User Settings
   { path: 'user/settings', component: SettingsComponent, canActivate: [authGuard], data: { roles: ['owner'] } },
   { path: 'settings/sop', component: SopSettingsComponent, canActivate: [authGuard], data: { roles: ['owner'] } },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [authGuard] },
   
 ];
