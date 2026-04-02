@@ -41,6 +41,14 @@
         </li>
       </ul>
     </nav>
+
+    <!-- PWA Install Button -->
+    <div class="sidebar-footer" *ngIf="canInstall">
+      <button class="install-btn" (click)="installApp()" id="pwa-install-btn" aria-label="Install RNR ERP as an app">
+        <i class="fa fa-download"></i>
+        <span class="menu-label">Install as App</span>
+      </button>
+    </div>
   </aside>
 
   <div class="main">

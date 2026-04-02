@@ -417,6 +417,59 @@
   }
 }
 
+/* ── PWA Install Button ─────────────────────────────── */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+}
+
+.install-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.install-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55);
+}
+
+.install-btn:active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.install-btn .fa {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Hide label when sidebar is collapsed (icon-only) */
+.sidebar.closed .install-btn {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.sidebar.closed .install-btn .menu-label {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .topbar-left {
     gap: 0.65rem;

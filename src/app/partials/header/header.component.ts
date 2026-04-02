@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -39,6 +39,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   notifications: NotificationItem[] = [];
 
+  // PWA install
+  canInstall = false;
+  private installPrompt: any = null;
+  private readonly installPromptHandler = (e: Event) => {
+    e.preventDefault();
+    this.installPrompt = e;
+    this.ngZone.run(() => {
+      this.canInstall = true;
+      this.cdr.detectChanges();
+    });
+  };
+  private readonly appInstalledHandler = () => {
+    this.ngZone.run(() => {
+      this.canInstall = false;
+      this.installPrompt = null;
+      this.cdr.detectChanges();
+    });
+  };
+
   user: any = {
     name: 'User',
     company: 'Company',
@@ -61,7 +80,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private auth: AuthService,
     private cdr: ChangeDetectorRef,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private ngZone: NgZone
   ) {
     this.menuItems = this.buildMenuForRole(this.auth.currentUserValue?.type);
     this.syncOpenMenus();
@@ -81,6 +101,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.syncOpenMenus();
 
     document.addEventListener('click', this.documentClickHandler);
+    window.addEventListener('beforeinstallprompt', this.installPromptHandler);
+    window.addEventListener('appinstalled', this.appInstalledHandler);
 
     this.notificationService.unreadCount$.subscribe(c => {
       this.unreadCount = c;
@@ -184,6 +206,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     document.removeEventListener('click', this.documentClickHandler);
+    window.removeEventListener('beforeinstallprompt', this.installPromptHandler);
+    window.removeEventListener('appinstalled', this.appInstalledHandler);
+  }
+
+  async installApp() {
+    if (!this.installPrompt) return;
+    this.installPrompt.prompt();
+    const { outcome } = await this.installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      this.canInstall = false;
+      this.installPrompt = null;
+    }
+    this.cdr.detectChanges();
   }
 
   @HostListener('window:resize')
