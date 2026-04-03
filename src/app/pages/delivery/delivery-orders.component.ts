@@ -6,6 +6,8 @@ import { DeliveryOrderService } from './delivery-order.service';
 import { AuthService } from '../../auth/auth.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastService } from '../../services/toast.service';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 declare var Razorpay: any;
 
@@ -34,12 +36,17 @@ export class DeliveryOrdersComponent implements OnInit, OnDestroy {
   lastLocationSentAt = 0;
   actionMessage = '';
   currentOrg: any = null;
+  private routeSubscription: Subscription | null = null;
+  private hasFetchedOrders = false;
+  private pendingDeepLinkedOrderId = '';
+  private missingDeepLinkedOrderId = '';
 
   completion = this.createCompletionState();
 
   constructor(
     private deliveryOrderService: DeliveryOrderService,
     private auth: AuthService,
+    private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private toast: ToastService,
     private cdr: ChangeDetectorRef,
@@ -47,11 +54,35 @@ export class DeliveryOrdersComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.currentOrg = this.auth.currentUserValue?.org;
-    this.fetchOrders();
+    this.routeSubscription = this.route.queryParamMap.subscribe((params) => {
+      const requestedScope = params.get('scope') === 'history' ? 'history' : 'active';
+      const requestedOrderId = params.get('orderId')?.trim() || '';
+      const scopeChanged = this.scope !== requestedScope;
+      const orderChanged = this.pendingDeepLinkedOrderId !== requestedOrderId;
+
+      this.scope = requestedScope;
+      this.pendingDeepLinkedOrderId = requestedOrderId;
+
+      if (orderChanged) {
+        this.missingDeepLinkedOrderId = '';
+      }
+
+      if (scopeChanged && this.showDetailsPopup) {
+        this.closeDetails();
+      }
+
+      if (scopeChanged || !this.hasFetchedOrders) {
+        this.fetchOrders();
+        return;
+      }
+
+      this.openDeepLinkedOrderIfRequested();
+    });
   }
 
   ngOnDestroy() {
     this.stopTracking(false);
+    this.routeSubscription?.unsubscribe();
   }
 
   private createCompletionState() {
@@ -71,7 +102,9 @@ export class DeliveryOrdersComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.orders = res.orders || [];
         this.loading = false;
+        this.hasFetchedOrders = true;
         this.errorMessage = '';
+        this.openDeepLinkedOrderIfRequested();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -85,8 +118,37 @@ export class DeliveryOrdersComponent implements OnInit, OnDestroy {
   switchScope(scope: 'active' | 'history') {
     if (this.scope === scope) return;
     this.scope = scope;
+    this.pendingDeepLinkedOrderId = '';
+    this.missingDeepLinkedOrderId = '';
     this.closeDetails();
     this.fetchOrders();
+  }
+
+  private openDeepLinkedOrderIfRequested() {
+    if (!this.pendingDeepLinkedOrderId || this.loading) {
+      return;
+    }
+
+    if (
+      this.showDetailsPopup &&
+      String(this.selectedOrder?._id || '') === this.pendingDeepLinkedOrderId
+    ) {
+      return;
+    }
+
+    const matchingOrder = this.orders.find(
+      (order) => String(order?._id || '') === this.pendingDeepLinkedOrderId
+    );
+
+    if (matchingOrder) {
+      this.openDetails(matchingOrder);
+      return;
+    }
+
+    if (this.missingDeepLinkedOrderId !== this.pendingDeepLinkedOrderId) {
+      this.missingDeepLinkedOrderId = this.pendingDeepLinkedOrderId;
+      this.toast.showError('Requested delivery order was not found.');
+    }
   }
 
   openDetails(order: any) {

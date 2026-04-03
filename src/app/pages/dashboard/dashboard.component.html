@@ -1,109 +1,313 @@
 <app-header>
-  <div class="dashboard-container">
-
-    <!-- LOADING & ERROR -->
-    <div *ngIf="loading" class="loading">Loading dashboard...</div>
-    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
-
-    <ng-container *ngIf="!loading && !errorMessage && summary">
-
-      <!-- TOP SUMMARY CARDS -->
-      <div class="cards-grid">
-        <div class="card">
-          <h3>Sales</h3>
-          <p class="big">{{ summary.sales.totalAmount | currency:'INR' }}</p>
-          <p>Paid: {{ summary.sales.paid | currency:'INR' }}</p>
-          <p>Due: <span class="text-red">{{ summary.sales.balance | currency:'INR' }}</span></p>
-        </div>
-
-        <div class="card">
-          <h3>Purchase</h3>
-          <p class="big">{{ summary.purchases.totalAmount | currency:'INR' }}</p>
-          <p>Paid: {{ summary.purchases.paid | currency:'INR' }}</p>
-          <p>Due: <span class="text-red">{{ summary.purchases.balance | currency:'INR' }}</span></p>
-        </div>
-
-        <div class="card">
-          <h3>Sale Payments</h3>
-          <p>Done: {{ summary.salesPayments.doneAmount | currency:'INR' }}</p>
-          <p>Pending: <span class="text-red">{{ summary.salesPayments.dueAmount | currency:'INR' }}</span></p>
-        </div>
-
-        <div class="card">
-          <h3>Purchase Payments</h3>
-          <p>Done: {{ summary.purchasePayments.doneAmount | currency:'INR' }}</p>
-          <p>Pending: <span class="text-red">{{ summary.purchasePayments.dueAmount | currency:'INR' }}</span></p>
-        </div>
-
-        <div class="card">
-          <h3>Inventory</h3>
-          <p>Total Products: {{ summary.inventory.totalProducts }}</p>
-          <p>Total Qty: {{ summary.inventory.totalQuantity }}</p>
-        </div>
-
-        <div class="card">
-          <h3>Suppliers</h3>
-          <p class="big">{{ summary.suppliers.count }}</p>
-        </div>
-      </div>
-
-      <!-- CHARTS GRID -->
-      <div class="chart-grid">
-
-        <!-- DOUGHNUT: SALES VS PURCHASES -->
-        <div class="chart-card">
-          <h3>Sales vs Purchases</h3>
-          <canvas baseChart
-                  [data]="salesVsPurchaseData"
-                  [options]="doughnutOptions"
-                  chartType="doughnut">
-          </canvas>
-        </div>
-
-        <!-- HORIZONTAL BAR: SALES PAYMENT METHODS -->
-        <div class="chart-card">
-          <h3>Sales Payment Methods</h3>
-          <canvas baseChart
-                  [data]="salesMethodBarData"
-                  [options]="horizontalBarOptions"
-                  chartType="bar">
-          </canvas>
-        </div>
-
-        <!-- PIE: PURCHASE PAYMENT METHODS -->
-        <div class="chart-card">
-          <h3>Purchase Payment Methods</h3>
-          <canvas baseChart
-                  [data]="purchaseMethodPieData"
-                  [options]="pieOptions"
-                  chartType="pie">
-          </canvas>
-        </div>
-
-      </div>
-
-      <!-- PROJECTIONS -->
-      <div class="projections" *ngIf="projections">
-        <h2>Projections (Next 30 Days)</h2>
-
-        <div class="cards-grid small">
-          <div class="card">
-            <h3>Projected Sales</h3>
-            <p class="big">{{ projections.projectedSalesNext30Days | currency:'INR' }}</p>
-          </div>
-
-          <div class="card">
-            <h3>Projected Purchases</h3>
-            <p class="big">{{ projections.projectedPurchasesNext30Days | currency:'INR' }}</p>
-          </div>
-        </div>
-
-        <p class="projection-comment" *ngIf="projections.commentary">
-          {{ projections.commentary }}
+  <div class="dashboard-page">
+    <section class="dashboard-intro">
+      <div>
+        <span class="dashboard-label">Dashboard Overview</span>
+        <h2>Live operational pulse for your ERP workspace</h2>
+        <p>
+          Track revenue, procurement, inventory movement, online-order intake, and payment
+          behavior from the current organisation summary.
         </p>
       </div>
 
-    </ng-container>
+      <div class="intro-chip">
+        <span class="material-symbols-outlined">monitoring</span>
+        <span>Real-time summary snapshot</span>
+      </div>
+    </section>
 
+    <div *ngIf="loading" class="dashboard-state">
+      <span class="material-symbols-outlined">hourglass_top</span>
+      <div>
+        <strong>Loading dashboard</strong>
+        <p>Pulling the latest sales, purchase, inventory, supplier, and online-order figures.</p>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="dashboard-state error">
+      <span class="material-symbols-outlined">error</span>
+      <div>
+        <strong>Dashboard unavailable</strong>
+        <p>{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!loading && !errorMessage && summary">
+      <section class="hero-grid">
+        <article class="panel hero-card">
+          <div class="hero-copy">
+            <span class="dashboard-label">Revenue Stream</span>
+            <h3>Total Sales</h3>
+            <p class="hero-amount">{{ summary.sales.totalAmount | currency:'INR' }}</p>
+
+            <div class="hero-splits">
+              <div>
+                <span class="mini-label">Collected</span>
+                <strong>{{ summary.sales.paid | currency:'INR' }}</strong>
+              </div>
+
+              <div class="alert">
+                <span class="mini-label">Outstanding</span>
+                <strong>{{ summary.sales.balance | currency:'INR' }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-pill">
+              <span class="material-symbols-outlined">receipt_long</span>
+              <span>{{ summary.sales.count }} sales recorded</span>
+            </div>
+
+            <span class="hero-mark material-symbols-outlined">payments</span>
+          </div>
+        </article>
+
+        <article class="panel stat-card accent">
+          <div class="stat-head">
+            <span class="material-symbols-outlined">handshake</span>
+            <span class="dashboard-label">Partnerships</span>
+          </div>
+          <strong>{{ summary.suppliers.count }}</strong>
+          <p>Active suppliers available for procurement.</p>
+        </article>
+
+        <article class="panel stat-card">
+          <div class="stat-head">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            <span class="dashboard-label">Procurement</span>
+          </div>
+          <strong>{{ summary.purchases.totalAmount | currency:'INR' }}</strong>
+          <div class="stat-split">
+            <span>Paid</span>
+            <span>{{ summary.purchases.paid | currency:'INR' }}</span>
+          </div>
+          <div class="stat-split danger">
+            <span>Due</span>
+            <span>{{ summary.purchases.balance | currency:'INR' }}</span>
+          </div>
+        </article>
+
+        <article class="panel stat-card inventory">
+          <div class="stat-head">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span class="dashboard-label">Inventory State</span>
+          </div>
+          <strong>{{ summary.inventory.totalQuantity }}</strong>
+          <p>Total units across {{ summary.inventory.totalProducts }} products.</p>
+          <div class="stat-split">
+            <span>Stock Value</span>
+            <span>{{ summary.inventory.totalStockValue | currency:'INR' }}</span>
+          </div>
+        </article>
+
+        <article class="panel stat-card online-orders">
+          <div class="stat-head">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span class="dashboard-label">Online Orders</span>
+          </div>
+          <strong>{{ onlineOrderCount }}</strong>
+          <p>{{ onlineOrderTotal | currency:'INR' }} processed through the online ordering flow.</p>
+          <div class="stat-split">
+            <span>Pending</span>
+            <span>{{ getOnlineOrderStatusCount('pending') }}</span>
+          </div>
+          <div class="stat-split">
+            <span>Avg. Order Value</span>
+            <span>{{ onlineOrderAverageValue | currency:'INR' }}</span>
+          </div>
+        </article>
+
+        <article class="panel stat-card">
+          <div class="stat-head">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span class="dashboard-label">Sales Payments</span>
+          </div>
+          <strong>{{ summary.salesPayments.doneAmount | currency:'INR' }}</strong>
+          <p>Collected revenue across recorded sales.</p>
+          <div class="stat-split danger">
+            <span>Pending</span>
+            <span>{{ summary.salesPayments.dueAmount | currency:'INR' }}</span>
+          </div>
+        </article>
+
+        <article class="panel stat-card">
+          <div class="stat-head">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+            <span class="dashboard-label">Purchase Payments</span>
+          </div>
+          <strong>{{ summary.purchasePayments.doneAmount | currency:'INR' }}</strong>
+          <p>Settled amount across supplier purchases.</p>
+          <div class="stat-split danger">
+            <span>Pending</span>
+            <span>{{ summary.purchasePayments.dueAmount | currency:'INR' }}</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="analytics-grid">
+        <article class="panel analytics-card ratio-card">
+          <div class="card-header">
+            <div>
+              <span class="dashboard-label">Cash Flow Balance</span>
+              <h3>Sales vs purchases</h3>
+            </div>
+            <span class="ratio-chip">{{ salesPurchaseRatio }}</span>
+          </div>
+
+          <div class="chart-frame" *ngIf="salesVsPurchaseHasData; else emptyDoughnut">
+            <canvas
+              baseChart
+              [data]="salesVsPurchaseData"
+              [options]="doughnutOptions"
+              chartType="doughnut"
+            >
+            </canvas>
+          </div>
+
+          <ng-template #emptyDoughnut>
+            <div class="empty-chart">
+              <span class="material-symbols-outlined">donut_small</span>
+              <p>No sales or purchase totals are available yet.</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="panel analytics-card wide-card">
+          <div class="card-header">
+            <div>
+              <span class="dashboard-label">Transaction Breakdown</span>
+              <h3>Sales payment methods</h3>
+            </div>
+            <span class="insight-chip">{{ paymentMethodLeader }}</span>
+          </div>
+
+          <div class="chart-frame bar-frame" *ngIf="salesMethodHasData; else emptySalesMethod">
+            <canvas
+              baseChart
+              [data]="salesMethodBarData"
+              [options]="horizontalBarOptions"
+              chartType="bar"
+            >
+            </canvas>
+          </div>
+
+          <ng-template #emptySalesMethod>
+            <div class="empty-chart">
+              <span class="material-symbols-outlined">bar_chart</span>
+              <p>No sales payment methods have been recorded yet.</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="panel analytics-card wide-card">
+          <div class="card-header">
+            <div>
+              <span class="dashboard-label">Supplier Settlement Mix</span>
+              <h3>Purchase payment methods</h3>
+            </div>
+            <span class="insight-chip alt">{{ purchaseMethodLeader }}</span>
+          </div>
+
+          <div class="chart-frame" *ngIf="purchaseMethodHasData; else emptyPurchaseMethod">
+            <canvas
+              baseChart
+              [data]="purchaseMethodPieData"
+              [options]="pieOptions"
+              chartType="pie"
+            >
+            </canvas>
+          </div>
+
+          <ng-template #emptyPurchaseMethod>
+            <div class="empty-chart">
+              <span class="material-symbols-outlined">pie_chart</span>
+              <p>No purchase payment methods have been recorded yet.</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="panel analytics-card ratio-card">
+          <div class="card-header">
+            <div>
+              <span class="dashboard-label">Online Order Funnel</span>
+              <h3>Status mix</h3>
+            </div>
+            <span class="insight-chip">{{ onlineOrderStatusLeader }}</span>
+          </div>
+
+          <div class="chart-frame" *ngIf="onlineOrderStatusHasData; else emptyOnlineOrderStatus">
+            <canvas
+              baseChart
+              [data]="onlineOrderStatusData"
+              [options]="doughnutOptions"
+              chartType="doughnut"
+            >
+            </canvas>
+          </div>
+
+          <ng-template #emptyOnlineOrderStatus>
+            <div class="empty-chart">
+              <span class="material-symbols-outlined">donut_small</span>
+              <p>No online orders have been recorded yet.</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="panel analytics-card wide-card">
+          <div class="card-header">
+            <div>
+              <span class="dashboard-label">Checkout Mix</span>
+              <h3>Online order payment methods</h3>
+            </div>
+            <span class="insight-chip alt">{{ onlineOrderPaymentLeader }}</span>
+          </div>
+
+          <div class="chart-frame bar-frame" *ngIf="onlineOrderPaymentHasData; else emptyOnlineOrderPayment">
+            <canvas
+              baseChart
+              [data]="onlineOrderPaymentData"
+              [options]="horizontalBarOptions"
+              chartType="bar"
+            >
+            </canvas>
+          </div>
+
+          <ng-template #emptyOnlineOrderPayment>
+            <div class="empty-chart">
+              <span class="material-symbols-outlined">bar_chart</span>
+              <p>No online order payment methods have been recorded yet.</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="panel analytics-card trend-card">
+          <div class="card-header">
+            <div>
+              <span class="dashboard-label">Order Intake</span>
+              <h3>Online orders in the last 7 days</h3>
+            </div>
+            <span class="ratio-chip">{{ onlineOrderTrendLeader }}</span>
+          </div>
+
+          <div class="chart-frame line-frame" *ngIf="onlineOrderTrendHasData; else emptyOnlineOrderTrend">
+            <canvas
+              baseChart
+              [data]="onlineOrderTrendData"
+              [options]="lineOptions"
+              chartType="line"
+            >
+            </canvas>
+          </div>
+
+          <ng-template #emptyOnlineOrderTrend>
+            <div class="empty-chart">
+              <span class="material-symbols-outlined">show_chart</span>
+              <p>No recent online orders are available for the trend view.</p>
+            </div>
+          </ng-template>
+        </article>
+      </section>
+    </ng-container>
   </div>
 </app-header>

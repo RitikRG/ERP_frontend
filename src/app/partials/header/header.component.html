@@ -1,76 +1,155 @@
-<div class="layout">
+<div class="layout-shell">
   <div
     class="sidebar-backdrop"
     *ngIf="isCompactViewport && sidebarOpen"
     (click)="toggleSidebar()"
   ></div>
 
-  <aside class="sidebar" [class.closed]="!sidebarOpen" [class.compact]="isCompactViewport">
-    <div class="sidebar-header">
-      <div class="brand-mark">
-        <img src="/images/logo.png" alt="RNR ERP logo" class="brand-logo" />
-      </div>
-      <div class="brand-copy">
-        <h2>RNR ERP</h2>
-        <p>Retail Management</p>
-      </div>
-    </div>
+  <aside class="sidebar-shell" [class.closed]="!sidebarOpen" [class.compact]="isCompactViewport">
+    <div class="sidebar-panel">
+      <div class="sidebar-header">
+        <div class="brand-block">
+          <div class="brand-mark">
+            <img src="/images/logo.png" alt="RNR ERP logo" class="brand-logo" />
+          </div>
+          <div class="brand-copy" *ngIf="sidebarOpen || isCompactViewport">
+            <h2>RNR ERP</h2>
+            <p>{{ user.company }}</p>
+          </div>
+        </div>
 
-    <nav class="sidebar-nav">
-      <div class="aside"></div>
-      <ul>
-        <li *ngFor="let item of menuItems">
-          <a href="{{ item.route }}" (click)="handleMenuClick(item, $event)">
-            <i [class]="item.icon"></i>
-            <span class="menu-label">{{ item.label }}</span>
-            <span *ngIf="item.children" class="arrow" [class.open]="item.isOpen">▼</span>
-          </a>
+        <button
+          *ngIf="!isCompactViewport"
+          type="button"
+          class="icon-button shell-toggle"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'"
+        >
+          <span class="material-symbols-outlined">
+            {{ sidebarOpen ? 'left_panel_close' : 'left_panel_open' }}
+          </span>
+        </button>
+      </div>
 
-          <ul *ngIf="item.children && item.isOpen" class="child-menu">
-            <li *ngFor="let child of item.children">
-              <a
-                href="{{ child.route }}"
-                (click)="handleChildClick(child.route, $event)"
-                [class.active]="isChildActive(child.route)"
+      <div class="sidebar-overview" *ngIf="sidebarOpen || isCompactViewport">
+        <span class="section-label">ERP Workspace</span>
+        <strong>{{ currentSectionGroup }}</strong>
+        <p>Unified operations dashboard for inventory, sales, suppliers, and customers.</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <span class="section-label" *ngIf="sidebarOpen || isCompactViewport">Navigation</span>
+
+        <ul>
+          <li *ngFor="let item of menuItems; trackBy: trackByLabel">
+            <button
+              type="button"
+              class="nav-item"
+              [class.active]="isItemActive(item)"
+              [class.open]="item.isOpen"
+              (click)="handleMenuClick(item, $event)"
+            >
+              <span class="material-symbols-outlined nav-icon">{{ item.icon }}</span>
+
+              <span class="nav-copy" *ngIf="sidebarOpen || isCompactViewport">
+                <span class="nav-label">{{ item.label }}</span>
+              </span>
+
+              <span
+                *ngIf="item.children && (sidebarOpen || isCompactViewport)"
+                class="material-symbols-outlined nav-chevron"
               >
-                <i [class]="child.icon"></i>
-                <span class="menu-label">{{ child.label }}</span>
-              </a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
+                {{ item.isOpen ? 'expand_less' : 'expand_more' }}
+              </span>
+            </button>
 
-    <!-- PWA Install Button -->
-    <div class="sidebar-footer" *ngIf="canInstall">
-      <button class="install-btn" (click)="installApp()" id="pwa-install-btn" aria-label="Install RNR ERP as an app">
-        <i class="fa fa-download"></i>
-        <span class="menu-label">Install as App</span>
-      </button>
+            <ul
+              *ngIf="item.children && item.isOpen && (sidebarOpen || isCompactViewport)"
+              class="child-nav"
+            >
+              <li *ngFor="let child of item.children">
+                <button
+                  type="button"
+                  class="child-item"
+                  [class.active]="isShortcutActive(child.route || '')"
+                  (click)="handleChildClick(child.route, $event)"
+                >
+                  <span class="material-symbols-outlined child-icon">{{ child.icon }}</span>
+                  <span>{{ child.label }}</span>
+                </button>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer" *ngIf="sidebarOpen || isCompactViewport">
+        <button
+          *ngIf="canInstall"
+          type="button"
+          class="footer-action"
+          (click)="installApp()"
+          aria-label="Install RNR ERP as an app"
+        >
+          <span class="material-symbols-outlined">download</span>
+          <span>Install App</span>
+        </button>
+
+        <div class="footer-summary">
+          <span class="footer-summary-label">Signed in as</span>
+          <strong>{{ user.name }}</strong>
+        </div>
+
+        <button
+          *ngIf="isMobileViewport"
+          type="button"
+          class="dropdown-action danger"
+          (click)="logout()"
+        >
+          <span class="material-symbols-outlined">logout</span>
+          <span>Logout</span>
+        </button>
+      </div>
     </div>
   </aside>
 
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <button class="menu-btn" type="button" aria-label="Toggle navigation menu" (click)="toggleSidebar()">
-          <i class="fa fa-bars"></i>
+  <div class="main-shell">
+    <header
+      class="topbar-shell"
+      [class.scrolled]="hasScrolled"
+      [class.mobile-scrolled]="isMobileViewport && hasScrolled"
+      [class.mobile-search-open]="isMobileViewport && hasScrolled && mobileSearchExpanded"
+    >
+      <div class="topbar-start">
+        <button
+          type="button"
+          class="icon-button menu-trigger"
+          aria-label="Toggle navigation menu"
+          (click)="toggleSidebar()"
+        >
+          <span class="material-symbols-outlined">{{ sidebarOpen ? 'menu_open' : 'menu' }}</span>
         </button>
 
-        <div class="topbar-brand">
-          <img src="/images/logo.png" alt="RNR ERP logo" class="topbar-brand-logo" />
-          <div class="topbar-brand-copy">
-            <strong>RNR ERP</strong>
-            <span>Business Suite</span>
-          </div>
+        <div
+          class="topbar-copy"
+          [class.mobile-inline-title]="isMobileViewport && hasScrolled && !mobileSearchExpanded"
+        >
+          <span class="section-label">{{ currentSectionGroup }}</span>
+          <h1>{{ currentSection }}</h1>
         </div>
       </div>
 
-      <div class="search">
+      <div
+        class="search-shell"
+        [class.mobile-hidden]="isMobileViewport && hasScrolled && !mobileSearchExpanded"
+        (click)="$event.stopPropagation()"
+      >
+        <span class="material-symbols-outlined search-icon">search</span>
         <input
           type="text"
-          placeholder="Search modules, pages..."
+          [placeholder]="
+            isMobileViewport && hasScrolled ? 'Search' : 'Search modules and pages'
+          "
           [(ngModel)]="searchText"
           (input)="onSearchChange()"
           (keydown.arrowDown)="moveActive(1)"
@@ -80,70 +159,138 @@
 
         <ul *ngIf="showSearchResults" class="search-results">
           <li
-            *ngFor="let r of filteredResults; let i = index"
+            *ngFor="let result of filteredResults; let i = index"
             [class.active]="i === activeIndex"
-            (click)="navigateTo(r.route)"
+            (click)="navigateTo(result.route)"
           >
-            <i [class]="r.icon"></i> {{ r.label }}
-            <span class="path">{{ r.parent }}</span>
+            <div class="result-main">
+              <span class="material-symbols-outlined">{{ result.icon }}</span>
+              <div>
+                <strong>{{ result.label }}</strong>
+                <span>{{ result.parent }}</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined">arrow_outward</span>
           </li>
         </ul>
       </div>
 
-      <div class="topbar-right">
-        
-        <!-- NOtification Bell -->
-        <div class="notification-wrapper" style="position: relative; cursor: pointer; margin-right: 20px;" (click)="toggleNotificationMenu($event)">
-          <i class="fa fa-bell" style="font-size: 1.2rem; color: #555;"></i>
-          <span class="badge" *ngIf="unreadCount > 0" style="position: absolute; top: -5px; right: -10px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold;">
-            {{ unreadCount }}
+      <div class="topbar-actions">
+        <button
+          *ngIf="isMobileViewport && hasScrolled"
+          type="button"
+          class="icon-button mobile-search-trigger"
+          [class.active]="mobileSearchExpanded"
+          aria-label="Toggle search"
+          (click)="toggleMobileSearch($event)"
+        >
+          <span class="material-symbols-outlined">
+            {{ mobileSearchExpanded ? 'close' : 'search' }}
           </span>
+        </button>
 
-          <div class="dropdown notification-dropdown" *ngIf="showNotificationDropdown" (click)="$event.stopPropagation()" style="position: absolute; right: -10px; top: 35px; background: white; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 300px; border-radius: 8px; z-index: 1000; padding: 10px;">
-            <div class="dropdown-header" style="padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-              <strong style="font-size: 14px;">Notifications</strong>
-            </div>
-            <div class="notification-list" style="max-height: 300px; overflow-y: auto;">
-              <div *ngIf="notifications.length === 0" style="padding: 15px; text-align: center; color: #777; font-size: 13px;">
-                No unread notifications
+        <div class="notification-shell">
+          <button
+            type="button"
+            class="icon-button"
+            aria-label="Open notifications"
+            (click)="toggleNotificationMenu($event)"
+          >
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="count-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </button>
+
+          <div
+            class="surface-dropdown notification-dropdown"
+            *ngIf="showNotificationDropdown"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="dropdown-header">
+              <div>
+                <span class="section-label">Updates</span>
+                <strong>Notifications</strong>
               </div>
-              <div *ngFor="let notif of notifications" (click)="onNotificationClick(notif, $event)" class="notification-item" style="padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;" [style.background]="notif.isRead ? '#fff' : '#f9f9ff'">
-                <div style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 4px;">{{ notif.title }}</div>
-                <div style="font-size: 12px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ notif.body }}</div>
-                <div style="font-size: 10px; color: #999; margin-top: 5px;">{{ notif.createdAt | date:'short' }}</div>
-              </div>
+              <button type="button" class="inline-link" (click)="viewAllNotifications($event)">
+                View All
+              </button>
             </div>
-            <div style="padding-top: 10px; text-align: center;">
-              <button (click)="viewAllNotifications($event)" style="background: none; border: none; color: #0066cc; font-size: 13px; cursor: pointer;">View All</button>
+
+            <div class="dropdown-list">
+              <div *ngIf="notifications.length === 0" class="dropdown-empty">
+                No notifications yet.
+              </div>
+
+              <button
+                *ngFor="let notif of notifications"
+                type="button"
+                class="notification-item"
+                [class.unread]="!notif.isRead"
+                (click)="onNotificationClick(notif, $event)"
+              >
+                <strong>{{ notif.title }}</strong>
+                <p>{{ notif.body }}</p>
+                <span>{{ notif.createdAt | date:'short' }}</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="user-menu" (click)="toggleUserMenu()" (click)="$event.stopPropagation()" tabindex="0">
-          <img src="https://cdn-icons-png.flaticon.com/512/630/630453.png" class="user-icon" />
+        <div class="profile-shell">
+          <button
+            type="button"
+            class="profile-trigger"
+            (click)="toggleUserMenu(); $event.stopPropagation()"
+          >
+            <span class="profile-avatar">{{ userInitials }}</span>
+            <span class="profile-copy">
+              <strong>{{ user.name }}</strong>
+              <span>{{ user.company }}</span>
+            </span>
+            <span class="material-symbols-outlined">expand_more</span>
+          </button>
 
-          <div class="dropdown" *ngIf="showUserDropdown" (click)="$event.stopPropagation()">
-            <div class="user-info">
-              <h4>{{ user?.name }}</h4>
-              <p>{{ user?.company }}</p>
+          <div
+            class="surface-dropdown profile-dropdown"
+            *ngIf="showUserDropdown"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="profile-panel">
+              <span class="profile-avatar large">{{ userInitials }}</span>
+              <div>
+                <strong>{{ user.name }}</strong>
+                <p>{{ user.company }}</p>
+              </div>
             </div>
 
-            <hr />
-
-            <button *ngIf="canOpenSettings" class="dropdown-btn" (click)="navigateToSettings()">
-              <i class="fa fa-cog"></i> Settings
+            <button *ngIf="canOpenSettings" type="button" class="dropdown-action" (click)="navigateToSettings()">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings</span>
             </button>
 
-            <button class="dropdown-btn logout" (click)="logout()">
-              <i class="fa fa-sign-out"></i> Logout
+            <button type="button" class="dropdown-action danger" (click)="logout()">
+              <span class="material-symbols-outlined">logout</span>
+              <span>Logout</span>
             </button>
           </div>
         </div>
       </div>
     </header>
 
-    <main class="content">
+    <main class="content-shell">
       <ng-content></ng-content>
     </main>
+
+    <nav class="mobile-shortcuts" *ngIf="isCompactViewport">
+      <button
+        *ngFor="let shortcut of mobileShortcuts; trackBy: trackByLabel"
+        type="button"
+        class="mobile-shortcut"
+        [class.active]="isShortcutActive(shortcut.route)"
+        (click)="navigateTo(shortcut.route)"
+      >
+        <span class="material-symbols-outlined">{{ shortcut.icon }}</span>
+        <span>{{ shortcut.label }}</span>
+      </button>
+    </nav>
   </div>
 </div>

@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AuthService } from '../../auth/auth.service';
 import { HeaderComponent } from '../../partials/header/header.component';
@@ -36,6 +38,9 @@ export class OnlineOrderListComponent implements OnInit, OnDestroy {
   searchTerm = '';
   trackingPollId: ReturnType<typeof setInterval> | null = null;
   trackingRefreshInProgress = false;
+  private routeSubscription: Subscription | null = null;
+  private pendingDeepLinkedOrderId = '';
+  private missingDeepLinkedOrderId = '';
 
   page = 1;
   pageSize = 10;
@@ -60,6 +65,7 @@ export class OnlineOrderListComponent implements OnInit, OnDestroy {
     private onlineOrderService: OnlineOrderService,
     private deliveryAgentService: DeliveryAgentService,
     private auth: AuthService,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private sanitizer: DomSanitizer,
     private toast: ToastService,
@@ -67,12 +73,23 @@ export class OnlineOrderListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.currentOrg = this.auth.currentUserValue?.org;
+    this.routeSubscription = this.route.queryParamMap.subscribe((params) => {
+      const orderId = params.get('orderId')?.trim() || '';
+
+      if (this.pendingDeepLinkedOrderId !== orderId) {
+        this.pendingDeepLinkedOrderId = orderId;
+        this.missingDeepLinkedOrderId = '';
+      }
+
+      this.openDeepLinkedOrderIfRequested();
+    });
     this.loadDeliveryAgents();
     this.fetchOnlineOrders();
   }
 
   ngOnDestroy() {
     this.stopTrackingPolling();
+    this.routeSubscription?.unsubscribe();
   }
 
   loadDeliveryAgents() {
@@ -103,6 +120,7 @@ export class OnlineOrderListComponent implements OnInit, OnDestroy {
         this.updatePaginatedOrders();
         this.errorMessage = '';
         this.loading = false;
+        this.openDeepLinkedOrderIfRequested();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -111,6 +129,33 @@ export class OnlineOrderListComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
     });
+  }
+
+  private openDeepLinkedOrderIfRequested() {
+    if (!this.pendingDeepLinkedOrderId || this.loading) {
+      return;
+    }
+
+    if (
+      this.showDetailsPopup &&
+      String(this.selectedOrder?._id || '') === this.pendingDeepLinkedOrderId
+    ) {
+      return;
+    }
+
+    const matchingOrder = this.onlineOrders.find(
+      (order) => String(order?._id || '') === this.pendingDeepLinkedOrderId
+    );
+
+    if (matchingOrder) {
+      this.openOrderDetails(matchingOrder);
+      return;
+    }
+
+    if (this.missingDeepLinkedOrderId !== this.pendingDeepLinkedOrderId) {
+      this.missingDeepLinkedOrderId = this.pendingDeepLinkedOrderId;
+      this.toast.showError('Requested order was not found.');
+    }
   }
 
   filterOrders() {
