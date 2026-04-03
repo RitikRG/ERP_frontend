@@ -114,12 +114,7 @@
   </aside>
 
   <div class="main-shell">
-    <header
-      class="topbar-shell"
-      [class.scrolled]="hasScrolled"
-      [class.mobile-scrolled]="isMobileViewport && hasScrolled"
-      [class.mobile-search-open]="isMobileViewport && hasScrolled && mobileSearchExpanded"
-    >
+    <header class="topbar-shell" [class.scrolled]="hasScrolled">
       <div class="topbar-start">
         <button
           type="button"
@@ -130,26 +125,17 @@
           <span class="material-symbols-outlined">{{ sidebarOpen ? 'menu_open' : 'menu' }}</span>
         </button>
 
-        <div
-          class="topbar-copy"
-          [class.mobile-inline-title]="isMobileViewport && hasScrolled && !mobileSearchExpanded"
-        >
+        <div class="topbar-copy">
           <span class="section-label">{{ currentSectionGroup }}</span>
           <h1>{{ currentSection }}</h1>
         </div>
       </div>
 
-      <div
-        class="search-shell"
-        [class.mobile-hidden]="isMobileViewport && hasScrolled && !mobileSearchExpanded"
-        (click)="$event.stopPropagation()"
-      >
+      <div class="search-shell">
         <span class="material-symbols-outlined search-icon">search</span>
         <input
           type="text"
-          [placeholder]="
-            isMobileViewport && hasScrolled ? 'Search' : 'Search modules and pages'
-          "
+          placeholder="Search modules and pages"
           [(ngModel)]="searchText"
           (input)="onSearchChange()"
           (keydown.arrowDown)="moveActive(1)"
@@ -176,19 +162,6 @@
       </div>
 
       <div class="topbar-actions">
-        <button
-          *ngIf="isMobileViewport && hasScrolled"
-          type="button"
-          class="icon-button mobile-search-trigger"
-          [class.active]="mobileSearchExpanded"
-          aria-label="Toggle search"
-          (click)="toggleMobileSearch($event)"
-        >
-          <span class="material-symbols-outlined">
-            {{ mobileSearchExpanded ? 'close' : 'search' }}
-          </span>
-        </button>
-
         <div class="notification-shell">
           <button
             type="button"

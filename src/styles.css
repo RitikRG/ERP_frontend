@@ -192,83 +192,51 @@ a {
 }
 
 @media (max-width: 640px) {
-  .topbar-shell.mobile-scrolled {
-    grid-template-columns: auto 1fr;
-    grid-template-areas: 'start actions';
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.55rem 0.85rem;
-  }
-
-  .topbar-shell.mobile-scrolled.mobile-search-open {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'start search actions';
-  }
-
-  .topbar-shell.mobile-scrolled .profile-shell {
-    display: none;
-  }
-
-  .topbar-shell.mobile-scrolled .topbar-copy {
-    display: none;
-  }
-
-  .topbar-shell.mobile-scrolled .topbar-copy.mobile-inline-title {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    margin-left: 0.2rem;
-  }
-
-  .topbar-shell.mobile-scrolled .topbar-copy.mobile-inline-title .section-label {
-    display: none;
-  }
-
-  .topbar-shell.mobile-scrolled .topbar-copy.mobile-inline-title h1 {
+  .topbar-shell,
+  .topbar-shell.scrolled {
+    position: static;
+    top: auto;
     margin: 0;
-    font-size: 1.12rem;
-    line-height: 1.05;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 0.85rem 0.75rem 0.7rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
-  .topbar-shell.mobile-scrolled .topbar-start {
-    grid-area: start;
-    display: flex;
-    align-items: center;
-    min-width: 0;
+  .topbar-copy h1 {
+    color: var(--color-primary);
   }
 
-  .topbar-shell.mobile-scrolled .search-shell {
-    display: none;
+  .topbar-copy .section-label {
+    color: var(--color-muted);
   }
 
-  .topbar-shell.mobile-scrolled.mobile-search-open .search-shell {
-    display: flex;
-    grid-area: search;
-    min-width: 0;
-    padding: 0.7rem 0.85rem;
+  .search-shell,
+  .profile-trigger,
+  .icon-button {
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
-  .topbar-shell.mobile-scrolled .search-shell.mobile-hidden {
-    display: none;
+  .search-shell {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
-  .topbar-shell.mobile-scrolled .search-shell input {
-    font-size: 0.9rem;
+  .search-icon,
+  .icon-button,
+  .profile-trigger {
+    color: var(--color-primary);
   }
 
-  .topbar-shell.mobile-scrolled .topbar-actions {
-    grid-area: actions;
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    justify-content: flex-end;
+  .search-shell input {
+    color: var(--color-primary);
   }
 
-  .topbar-shell.mobile-scrolled .mobile-search-trigger.active {
-    background: rgba(255, 223, 153, 0.72);
+  .search-shell input::placeholder {
+    color: var(--color-muted);
   }
 }
 

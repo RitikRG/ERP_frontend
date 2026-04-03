@@ -34,7 +34,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isCompactViewport = false;
   isMobileViewport = false;
   hasScrolled = false;
-  mobileSearchExpanded = false;
 
   menuItems: MenuItem[] = [];
   mobileShortcuts: QuickLink[] = [];
@@ -90,12 +89,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     if (this.showNotificationDropdown) {
       this.showNotificationDropdown = false;
-      changed = true;
-    }
-
-    if (this.mobileSearchExpanded) {
-      this.mobileSearchExpanded = false;
-      this.showSearchResults = false;
       changed = true;
     }
 
@@ -309,16 +302,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   @HostListener('window:scroll')
   onWindowScroll() {
+    if (this.isMobileViewport) {
+      if (this.hasScrolled) {
+        this.hasScrolled = false;
+        this.cdr.detectChanges();
+      }
+      return;
+    }
+
     const nextScrolled = window.scrollY > 8;
 
     if (nextScrolled !== this.hasScrolled) {
       this.hasScrolled = nextScrolled;
-
-      if (!nextScrolled && this.mobileSearchExpanded) {
-        this.mobileSearchExpanded = false;
-        this.showSearchResults = false;
-      }
-
       this.cdr.detectChanges();
     }
   }
@@ -331,9 +326,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isCompactViewport = compactViewport;
     this.isMobileViewport = mobileViewport;
 
-    if (!mobileViewport && this.mobileSearchExpanded) {
-      this.mobileSearchExpanded = false;
-      this.showSearchResults = false;
+    if (mobileViewport) {
+      this.hasScrolled = false;
     }
 
     if (force || changed) {
@@ -361,8 +355,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleUserMenu() {
     this.showUserDropdown = !this.showUserDropdown;
     this.showNotificationDropdown = false;
-    this.mobileSearchExpanded = false;
-    this.showSearchResults = false;
     this.cdr.detectChanges();
   }
 
@@ -370,21 +362,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.showNotificationDropdown = !this.showNotificationDropdown;
     this.showUserDropdown = false;
-    this.mobileSearchExpanded = false;
-    this.showSearchResults = false;
-    this.cdr.detectChanges();
-  }
-
-  toggleMobileSearch(event: Event) {
-    event.stopPropagation();
-    this.mobileSearchExpanded = !this.mobileSearchExpanded;
-
-    if (!this.mobileSearchExpanded) {
-      this.showSearchResults = false;
-    }
-
-    this.showUserDropdown = false;
-    this.showNotificationDropdown = false;
     this.cdr.detectChanges();
   }
 
@@ -519,7 +496,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   navigateTo(route: string) {
     this.searchText = '';
     this.showSearchResults = false;
-    this.mobileSearchExpanded = false;
     this.router.navigate([route]);
     this.closeSidebarOnCompactViewport();
   }
