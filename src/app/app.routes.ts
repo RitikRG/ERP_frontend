@@ -24,10 +24,28 @@ import { SopSettingsComponent } from './pages/settings/sop-settings.component';
 import { DeliveryAgentManagementComponent } from './pages/delivery-agents/delivery-agent-management.component';
 import { DeliveryOrdersComponent } from './pages/delivery/delivery-orders.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { AdminLoginComponent } from './admin/admin-login.component';
+import { AdminShellComponent } from './admin/admin-shell.component';
+import { adminAuthGuard } from './admin/admin-auth.guard';
+import { ErrorLogsComponent } from './admin/error-logs.component';
+import { AiTracesComponent } from './admin/ai-traces.component';
+import { NotificationTemplatesComponent } from './admin/notification-templates.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'admin/login', component: AdminLoginComponent },
+  {
+    path: 'admin',
+    component: AdminShellComponent,
+    canActivate: [adminAuthGuard],
+    children: [
+      { path: '', redirectTo: 'error-logs', pathMatch: 'full' },
+      { path: 'error-logs', component: ErrorLogsComponent },
+      { path: 'ai-traces', component: AiTracesComponent },
+      { path: 'notification-templates', component: NotificationTemplatesComponent },
+    ],
+  },
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], data: { roles: ['owner'] } },
   
