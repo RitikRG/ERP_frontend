@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login.component';
 import { RegisterComponent } from './auth/register.component';
+import { LandingComponent } from './landing/landing.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { OrgRegisterComponent } from './org/register.component';
 import { authGuard } from './auth/auth.gaurd';
@@ -32,7 +33,7 @@ import { AiTracesComponent } from './admin/ai-traces.component';
 import { NotificationTemplatesComponent } from './admin/notification-templates.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'admin/login', component: AdminLoginComponent },
   {

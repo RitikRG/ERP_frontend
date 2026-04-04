@@ -1135,3 +1135,103 @@ hr {
     width: max(100%, 560px);
   }
 }
+
+.landing-page {
+  --hero-tilt-x: 10deg;
+  --hero-tilt-y: -14deg;
+  --hero-shift: 26px;
+  --hero-glow: 0.42;
+}
+
+.landing-page [data-reveal] {
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(3rem) scale(0.985) rotateX(-10deg);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--reveal-order, 0) * 110ms);
+  will-change: transform, opacity, filter;
+}
+
+.landing-page [data-reveal].is-visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0) scale(1) rotateX(0);
+}
+
+.landing-page [data-depth] {
+  --depth-shift: 0px;
+  --depth-rotate: 0deg;
+  --depth-z: 0px;
+  transform:
+    perspective(1200px)
+    translate3d(0, var(--depth-shift), var(--depth-z))
+    rotateX(calc(var(--depth-rotate) * -0.32))
+    rotateY(calc(var(--depth-rotate) * 0.2));
+  transform-style: preserve-3d;
+  transition:
+    transform 0.24s linear,
+    box-shadow 0.24s ease,
+    background 0.24s ease;
+  will-change: transform;
+}
+
+.landing-page.motion-reduced [data-reveal] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  transition: none;
+}
+
+.landing-page.motion-reduced [data-depth] {
+  transform: none;
+  transition: none;
+}
+
+.landing-page .hero-visual {
+  perspective: 1800px;
+}
+
+.landing-page .hero-visual-stage {
+  position: relative;
+  transform-style: preserve-3d;
+  transform:
+    perspective(1800px)
+    rotateX(var(--hero-tilt-x))
+    rotateY(var(--hero-tilt-y))
+    translate3d(0, var(--hero-shift), 1.5rem);
+  transition: transform 0.18s linear;
+}
+
+.landing-page .hero-visual-stage::before {
+  content: '';
+  position: absolute;
+  inset: 1.75rem 8% -1rem;
+  border-radius: 2.5rem;
+  background: radial-gradient(circle, rgba(255, 213, 113, 0.28) 0%, rgba(255, 213, 113, 0) 70%);
+  filter: blur(20px);
+  opacity: var(--hero-glow);
+  transform: translateZ(-3rem);
+  pointer-events: none;
+}
+
+.landing-page .hero-overview {
+  position: relative;
+  transform: translateZ(1.2rem);
+}
+
+.landing-page .preview-card {
+  box-shadow: 0 22px 36px -34px rgba(4, 5, 5, 0.28);
+}
+
+.landing-page .pain-card,
+.landing-page .feature-card,
+.landing-page .step-card,
+.landing-page .metric-card,
+.landing-page .testimonial-card,
+.landing-page .pricing-card {
+  box-shadow: 0 28px 45px -38px rgba(4, 5, 5, 0.32);
+}

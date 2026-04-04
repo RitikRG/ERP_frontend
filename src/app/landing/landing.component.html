@@ -1,0 +1,248 @@
+<div class="landing-page" [class.motion-reduced]="prefersReducedMotion">
+  <header class="landing-nav glass-panel">
+    <a class="brand" href="#top" aria-label="RNR ERP home" (click)="scrollToSection($event, '#top')">
+      <span class="brand-mark">
+        <img src="/images/logo.png" alt="RNR ERP logo" />
+      </span>
+      <span class="brand-copy">
+        <strong>RNR ERP</strong>
+        <span>Unified retail operations</span>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="Landing page sections">
+      <a
+        *ngFor="let link of navLinks"
+        [href]="link.href"
+        (click)="scrollToSection($event, link.href)"
+      >
+        {{ link.label }}
+      </a>
+    </nav>
+
+    <div class="nav-actions">
+      <a class="btn-secondary" routerLink="/login">Login</a>
+      <a class="btn-primary" routerLink="/org/register">Get Started</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero-section">
+      <div class="hero-copy" data-reveal style="--reveal-order: 0">
+        <span class="eyebrow">Built in the same ERP language your product already uses</span>
+        <h1>Run your shop operations from one calm, connected ERP workspace.</h1>
+        <p class="hero-text">
+          RNR ERP brings sales, inventory, purchases, customer dues, and order handling into one
+          place so store teams can work faster without the usual operational clutter.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn-primary" routerLink="/org/register">Start Free for 3 Months</a>
+          <a class="btn-secondary" routerLink="/login">Login to ERP</a>
+        </div>
+
+        <ul class="hero-points">
+          <li>
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Public onboarding page for new stores</span>
+          </li>
+          <li>
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Existing auth and guarded ERP flows remain unchanged</span>
+          </li>
+          <li>
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Simple pricing: free for 3 months, then &#8377;499/month</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="hero-visual" aria-label="ERP product preview" data-reveal style="--reveal-order: 1">
+        <div class="hero-visual-stage">
+          <article class="hero-overview glass-panel">
+          <div class="preview-header">
+            <div>
+              <span class="section-label">Operations Snapshot</span>
+              <h2>Everything important stays within reach.</h2>
+            </div>
+            <span class="preview-chip">
+              <span class="material-symbols-outlined">monitoring</span>
+              <span>Live workspace</span>
+            </span>
+          </div>
+
+          <div class="preview-grid">
+            <article class="preview-card accent" data-depth>
+              <span class="material-symbols-outlined">payments</span>
+              <strong>Sales and counter billing</strong>
+              <p>Fast entry, payment tracking, and day-end visibility for active retail operations.</p>
+            </article>
+
+            <article class="preview-card" data-depth>
+              <span class="material-symbols-outlined">inventory_2</span>
+              <strong>Inventory control</strong>
+              <p>See live stock movement and keep products aligned with day-to-day order demand.</p>
+            </article>
+
+            <article class="preview-card" data-depth>
+              <span class="material-symbols-outlined">shopping_bag</span>
+              <strong>Supplier purchases</strong>
+              <p>Track procurements, balances, and vendor relationships from the same ERP shell.</p>
+            </article>
+
+            <article class="preview-card accent-soft" data-depth>
+              <span class="material-symbols-outlined">account_balance_wallet</span>
+              <strong>Customer dues</strong>
+              <p>Keep khata-style balances visible without moving between notebooks and separate tools.</p>
+            </article>
+          </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="problem-strip" aria-labelledby="problem-title" data-reveal style="--reveal-order: 0">
+      <div class="problem-copy">
+        <span class="section-label">Why this matters</span>
+        <h2 id="problem-title">Retail operations break down when every workflow lives in a different place.</h2>
+        <p>
+          The landing page should reflect the existing ERP promise clearly: one product that helps
+          shops manage inventory, billing, suppliers, customer dues, and incoming order operations
+          without unnecessary friction.
+        </p>
+      </div>
+
+      <div class="pain-grid">
+        <article class="pain-card" *ngFor="let pain of painPoints; let i = index" data-depth [style.--depth-order]="i">
+          <span class="material-symbols-outlined">{{ pain.icon }}</span>
+          <p>{{ pain.title }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="features" class="content-section">
+      <div class="section-copy" data-reveal style="--reveal-order: 0">
+        <span class="section-label">Features</span>
+        <h2>One ERP product for the core workflows a growing store needs every day.</h2>
+        <p>
+          The structure follows the landing reference, but the styling stays native to the current
+          ERP experience with glass surfaces, warm highlights, and the existing typography system.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card" *ngFor="let feature of features; let i = index" [class.accent]="feature.accent" data-depth [style.--depth-order]="i">
+          <span class="material-symbols-outlined">{{ feature.icon }}</span>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="content-section how-section">
+      <div class="section-copy" data-reveal style="--reveal-order: 0">
+        <span class="section-label">How It Works</span>
+        <h2>Adopt the ERP in a straightforward flow instead of a complex rollout.</h2>
+        <p>
+          This page positions onboarding clearly for store owners: start the setup, map the
+          operations, and continue using the same workspace as the business scales.
+        </p>
+      </div>
+
+      <div class="step-grid">
+        <article class="step-card glass-panel" *ngFor="let step of steps; let i = index" data-depth [style.--depth-order]="i">
+          <span class="step-number">{{ step.number }}</span>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="metrics-section">
+      <article class="metric-card" *ngFor="let metric of metrics; let i = index" data-depth [style.--depth-order]="i">
+        <strong>{{ metric.value }}</strong>
+        <span>{{ metric.label }}</span>
+      </article>
+    </section>
+
+    <section class="content-section">
+      <div class="section-copy" data-reveal style="--reveal-order: 0">
+        <span class="section-label">Store Feedback</span>
+        <h2>Static proof points for the first version of the public page.</h2>
+        <p>
+          Testimonials stay static here by design. No backend integrations or unsupported live
+          metrics are introduced for this landing-page release.
+        </p>
+      </div>
+
+      <div class="testimonial-grid">
+        <article class="testimonial-card glass-panel" *ngFor="let testimonial of testimonials; let i = index" data-depth [style.--depth-order]="i">
+          <div class="testimonial-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <blockquote>{{ testimonial.quote }}</blockquote>
+          <div class="testimonial-author">
+            <span class="author-badge">{{ testimonial.initials }}</span>
+            <div>
+              <strong>{{ testimonial.name }}</strong>
+              <span>{{ testimonial.role }}</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="pricing" class="content-section pricing-section">
+      <div class="section-copy" data-reveal style="--reveal-order: 0">
+        <span class="section-label">Pricing</span>
+        <h2>Simple public pricing with just two tiers.</h2>
+        <p>
+          The offer is explicit: Free for first 3 months, then &#8377;499 a month. No extra plans, no
+          trial wording, and no unsupported pricing complexity on the page.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <article class="pricing-card" *ngFor="let tier of pricingTiers; let i = index" [class.accent]="tier.accent" data-depth [style.--depth-order]="i">
+          <span *ngIf="tier.badge" class="pricing-badge">{{ tier.badge }}</span>
+          <div class="pricing-head">
+            <h3>{{ tier.name }}</h3>
+            <p>{{ tier.summary }}</p>
+          </div>
+
+          <div class="pricing-price">
+            <strong>{{ tier.price }}</strong>
+            <span>{{ tier.cadence }}</span>
+          </div>
+
+          <ul class="pricing-features">
+            <li *ngFor="let feature of tier.features">
+              <span class="material-symbols-outlined">check_circle</span>
+              <span>{{ feature }}</span>
+            </li>
+          </ul>
+
+          <a class="btn-primary pricing-cta" routerLink="/org/register">Get Started</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="footer-cta glass-panel" data-reveal style="--reveal-order: 0">
+      <div>
+        <span class="section-label">Get Started</span>
+        <h2>Set up your ERP workspace, start free for 3 months, and continue at &#8377;499/month.</h2>
+        <p>
+          This keeps the public entry point simple while the existing login and organisation
+          registration screens continue to handle the real application flow.
+        </p>
+      </div>
+
+      <div class="footer-actions">
+        <a class="btn-primary" routerLink="/org/register">Create Organisation</a>
+        <a class="btn-secondary" routerLink="/login">Existing User Login</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="landing-footer">
+    <p>&copy; {{ currentYear }} RNR ERP. Built for connected retail operations.</p>
+  </footer>
+</div>

@@ -1,0 +1,712 @@
+.landing-page {
+  min-height: 100vh;
+  padding: 1.25rem;
+  color: var(--text-primary);
+}
+
+.landing-nav,
+.hero-overview,
+.feature-card,
+.pricing-card,
+.metric-card,
+.pain-card {
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.56);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-md);
+}
+
+.landing-nav {
+  position: sticky;
+  top: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-3xl);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+}
+
+.brand-mark img {
+  width: 1.9rem;
+  height: 1.9rem;
+  object-fit: contain;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.brand-copy strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.brand-copy span {
+  color: var(--text-muted);
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-links,
+.nav-actions,
+.hero-actions,
+.hero-points,
+.footer-actions,
+.pricing-features,
+.testimonial-author {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links {
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-links a:hover {
+  color: var(--color-primary);
+}
+
+.nav-actions,
+.hero-actions,
+.footer-actions {
+  gap: 0.75rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.72rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-1px);
+}
+
+main {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+.hero-section,
+.problem-strip,
+.content-section,
+.pricing-section,
+.footer-cta {
+  scroll-margin-top: 7rem;
+}
+
+.hero-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 1.5rem;
+  align-items: center;
+  padding: 3.5rem 0 2.5rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(255, 223, 153, 0.42);
+  color: var(--color-primary);
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1,
+.section-copy h2,
+.preview-header h2,
+.footer-cta h2,
+.problem-copy h2 {
+  color: var(--color-primary);
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+}
+
+.hero-copy h1 {
+  margin-top: 1rem;
+  font-size: clamp(2.9rem, 2.2rem + 2.4vw, 5rem);
+  max-width: 12ch;
+}
+
+.hero-text,
+.section-copy p,
+.problem-copy p,
+.preview-card p,
+.step-card p,
+.pricing-head p,
+.footer-cta p,
+.testimonial-card blockquote {
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.hero-text {
+  max-width: 38rem;
+  margin-top: 1.25rem;
+  font-size: 1rem;
+}
+
+.hero-actions {
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.hero-points {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+  list-style: none;
+}
+
+.hero-points li,
+.pricing-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.hero-points .material-symbols-outlined,
+.pricing-features .material-symbols-outlined {
+  color: var(--color-secondary);
+  font-size: 1.2rem;
+}
+
+.hero-visual {
+  min-width: 0;
+}
+
+.hero-overview {
+  border-radius: var(--radius-3xl);
+  padding: 1.5rem;
+}
+
+.preview-header,
+.pricing-head,
+.section-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-header {
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.preview-header h2 {
+  margin-top: 0.4rem;
+  font-size: clamp(1.7rem, 1.35rem + 1vw, 2.4rem);
+  max-width: 14ch;
+}
+
+.preview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(4, 5, 5, 0.92);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.preview-grid,
+.feature-grid,
+.pain-grid,
+.step-grid,
+.metrics-section,
+.testimonial-grid,
+.pricing-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.preview-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preview-card,
+.feature-card,
+.pain-card,
+.metric-card {
+  border-radius: 1.6rem;
+  padding: 1.2rem;
+}
+
+.preview-card {
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.54);
+}
+
+.preview-card.accent {
+  background: rgba(255, 223, 153, 0.72);
+}
+
+.preview-card.accent-soft {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 223, 153, 0.3) 100%);
+}
+
+.preview-card .material-symbols-outlined,
+.feature-card .material-symbols-outlined,
+.pain-card .material-symbols-outlined {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-primary);
+}
+
+.preview-card strong,
+.feature-card h3,
+.step-card h3,
+.pricing-head h3 {
+  color: var(--color-primary);
+}
+
+.preview-card strong,
+.feature-card h3 {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 1.05rem;
+}
+
+.problem-strip,
+.content-section,
+.footer-cta {
+  margin-top: 1.25rem;
+}
+
+.problem-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-3xl);
+  background: rgba(4, 5, 5, 0.92);
+  box-shadow: var(--shadow-lg);
+}
+
+.problem-copy h2 {
+  margin-top: 0.5rem;
+  font-size: clamp(1.95rem, 1.55rem + 1vw, 3rem);
+  color: #fff;
+}
+
+.problem-copy p,
+.pain-card p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.pain-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pain-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.pain-card .material-symbols-outlined {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.content-section {
+  padding: 3rem 0 0;
+}
+
+.section-copy {
+  gap: 0.8rem;
+  max-width: 42rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-copy h2 {
+  font-size: clamp(2rem, 1.6rem + 1vw, 3.1rem);
+}
+
+.feature-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature-card {
+  min-height: 100%;
+}
+
+.feature-card.accent {
+  background: linear-gradient(160deg, rgba(255, 223, 153, 0.88) 0%, rgba(255, 255, 255, 0.7) 100%);
+}
+
+.how-section .step-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.step-card {
+  border-radius: 1.75rem;
+  padding: 1.35rem;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: rgba(255, 223, 153, 0.72);
+  color: var(--color-primary);
+  font-family: var(--font-label);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.metrics-section {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 3rem;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: flex-start;
+}
+
+.metric-card strong {
+  font-size: clamp(2rem, 1.65rem + 1vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--color-primary);
+}
+
+.metric-card span {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.testimonial-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100%;
+  padding: 1.35rem;
+  border-radius: 1.8rem;
+}
+
+.testimonial-stars {
+  color: var(--color-secondary);
+  letter-spacing: 0.16em;
+}
+
+.testimonial-card blockquote {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.testimonial-author {
+  gap: 0.8rem;
+}
+
+.author-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 223, 153, 0.95), rgba(119, 90, 0, 0.92));
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.testimonial-author strong,
+.testimonial-author span {
+  display: block;
+}
+
+.testimonial-author span {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.pricing-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: 100%;
+  padding: 1.6rem;
+  border-radius: var(--radius-3xl);
+}
+
+.pricing-card.accent {
+  background: linear-gradient(180deg, rgba(255, 223, 153, 0.8) 0%, rgba(255, 255, 255, 0.78) 100%);
+}
+
+.pricing-badge {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.5rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(4, 5, 5, 0.94);
+  color: #fff;
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pricing-head {
+  gap: 0.6rem;
+}
+
+.pricing-head h3 {
+  font-size: 1.3rem;
+}
+
+.pricing-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.pricing-price strong {
+  font-size: clamp(2.2rem, 1.95rem + 1vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--color-primary);
+}
+
+.pricing-price span {
+  color: var(--text-muted);
+  font-family: var(--font-label);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pricing-features {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+
+.pricing-cta {
+  width: 100%;
+}
+
+.footer-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.65rem;
+  border-radius: var(--radius-3xl);
+}
+
+.footer-cta h2 {
+  margin-top: 0.5rem;
+  font-size: clamp(2rem, 1.65rem + 1vw, 3.35rem);
+  max-width: 14ch;
+}
+
+.footer-cta p {
+  max-width: 38rem;
+  margin-top: 0.85rem;
+}
+
+.landing-footer {
+  width: min(1180px, 100%);
+  margin: 1.5rem auto 0;
+  padding-bottom: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 1100px) {
+  .hero-section,
+  .problem-strip,
+  .footer-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-grid,
+  .testimonial-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .how-section .step-grid,
+  .metrics-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .landing-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .preview-grid,
+  .pain-grid,
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-page {
+    padding: 0.75rem;
+  }
+
+  .landing-nav {
+    top: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 2rem;
+  }
+
+  .brand-copy span,
+  .nav-links {
+    display: none;
+  }
+
+  main {
+    padding-top: 1.25rem;
+  }
+
+  .hero-section {
+    padding-top: 2rem;
+  }
+
+  .hero-copy h1,
+  .section-copy h2,
+  .problem-copy h2,
+  .footer-cta h2 {
+    max-width: 100%;
+  }
+
+  .nav-actions,
+  .hero-actions,
+  .footer-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .nav-actions > a,
+  .hero-actions > a,
+  .footer-actions > a {
+    width: 100%;
+  }
+
+  .feature-grid,
+  .how-section .step-grid,
+  .metrics-section,
+  .testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-overview,
+  .problem-strip,
+  .footer-cta,
+  .pricing-card,
+  .feature-card,
+  .pain-card,
+  .metric-card,
+  .testimonial-card {
+    border-radius: 1.6rem;
+  }
+}
